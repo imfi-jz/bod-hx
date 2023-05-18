@@ -1,0 +1,11 @@
+-lib minecraft-api
+
+-p src
+nl.imfi_jz.battlesofdestinyre
+-p ../../Functional/src
+
+--dce full
+-D mc_debug
+
+--cmd del BattlesOfDestinyHx.jar
+--cmd rename HxMcPlugin.jar BattlesOfDestinyHx.jar
