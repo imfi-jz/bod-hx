@@ -7,21 +7,34 @@ import nl.imfi_jz.battlesofdestinyre.state.CombinedGameState;
 
 class GameStateFactory {
 
-    public static inline function createGameState(name:String, plugin:Plugin):CombinedGameState {
-        return new CombinedGameState(
-            new SharedMemoryGameState(
+    public inline function new() {
+        
+    }
+
+    public inline function createGameState(name:String, plugin:Plugin):CombinedGameState {
+        final sharedMemoryState = new SharedMemoryGameState(
+            name,
+            plugin.getSharedPluginMemory(),
+            plugin.getNameCapitals()
+        );
+
+        final fileState = new FileGameState(
+            plugin.getFileSystemManager().getYmlFile(
                 name,
-                plugin.getSharedPluginMemory(),
-                plugin.getNameCapitals()
-            ),
-            new FileGameState(
-                cast plugin.getFileSystemManager().getYmlFile(
-                    name,
-                    ["games"],
-                    null,
-                    true
-                )
+                [GameLoader.STATE_FOLDER_NAME],
+                null,
+                true
             )
+        );
+
+        // TODO synchronizing the file state with the memory state should probably be moved elsewhere
+        sharedMemoryState.setSecondsBetweenTicks(fileState.getSecondsBetweenTicks());
+        sharedMemoryState.setSecondsRemaining(fileState.getSecondsRemaining());
+        sharedMemoryState.setStage(fileState.getStage());
+
+        return new CombinedGameState(
+            sharedMemoryState,
+            fileState
         );
     }
 }

@@ -29,7 +29,7 @@ class Clock {
     }
 
     private function pauseToggle(wasPaused:Null<Bool>, isPaused:Null<Bool>) {
-        Debugger.log('Pause toggled. Was paused: $wasPaused, is paused: $isPaused');
+        Debugger.log('Pause toggled. Paused was: $wasPaused, paused is: $isPaused');
 
         if(isPaused != null && !isPaused && (wasPaused == null || wasPaused)){
             start();
