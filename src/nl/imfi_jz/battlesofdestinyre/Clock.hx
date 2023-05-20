@@ -23,6 +23,9 @@ class Clock {
         this.stateChangeListener = gameStateChangeListener;
 
         this.stateChangeListener.setBoolChangeHandler(StateKey.PAUSED, boolMemory, pauseToggle);
+
+        this.memoryGameState.setBool(StateKey.PAUSED, true);
+        this.memoryGameState.setBool(StateKey.PAUSED, false);
     }
 
     private function pauseToggle(wasPaused:Null<Bool>, isPaused:Null<Bool>) {

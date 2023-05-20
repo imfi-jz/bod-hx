@@ -29,8 +29,6 @@ class BattlesOfDestinyGate implements Gate {
                 testState.setString(StateKey.STAGE, "Test stage");
 
                 gameLoader.initializeGame(testState, plugin);
-
-                //testState.setBool(StateKey.PAUSED, false);
             };
             generateGame("Test game 1");
             generateGame("Test game 2");
@@ -38,6 +36,5 @@ class BattlesOfDestinyGate implements Gate {
     }
 
 	public function disable(plugin:Plugin) {
-        new GameLoader().getExistingGamesAsFileState(plugin).each((state) -> state.setBool(StateKey.PAUSED, true));
     }
 }

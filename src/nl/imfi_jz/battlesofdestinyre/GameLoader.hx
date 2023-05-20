@@ -21,12 +21,16 @@ class GameLoader {
     }
 
     public function getExistingGamesAsFileState(plugin:Plugin):Multitude<FileGameState> {
-        return FileSystem.readDirectory(Path.join(plugin.getFileSystemManager().getDataFolderPath([STATE_FOLDER_NAME])))
-            .filter((fileName:String) -> fileName.toLowerCase().lastIndexOf(STATE_FILE_EXTENSION) > 0)
-            .map((fileName:String) -> new GameStateFactory().createGameState(
-                fileName.substring(0, fileName.lastIndexOf('.')),
-                plugin
-            ));
+        final gamesDirectory = Path.join(plugin.getFileSystemManager().getDataFolderPath([STATE_FOLDER_NAME]));
+        if(FileSystem.exists(gamesDirectory)){
+            return FileSystem.readDirectory(gamesDirectory)
+                .filter((fileName:String) -> fileName.toLowerCase().lastIndexOf(STATE_FILE_EXTENSION) > 0)
+                .map((fileName:String) -> new GameStateFactory().createGameState(
+                    fileName.substring(0, fileName.lastIndexOf('.')),
+                    plugin
+                ));
+        }
+        else return [];
     }
 
     public function initializeGame(fileGameState:FileGameState, plugin:Plugin):Void {
@@ -94,7 +98,7 @@ class GameLoader {
         );
 
         stringMemory.setValue(
-            SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, ['last game added']),
+            SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, ['lastgameadded']),
             stateName
         );
 	}
