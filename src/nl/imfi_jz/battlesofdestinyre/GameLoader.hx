@@ -14,7 +14,8 @@ import nl.imfi_jz.minecraft_api.Gate.Plugin;
 
 class GameLoader {
     public static inline final STATE_FOLDER_NAME = "games";
-    public static inline final STATE_FILE_EXTENSION = ".yml";
+    private static inline final STATE_FILE_EXTENSION = ".yml";
+    private static final INITIALIZED_GAMES_MEMORY_KEY = ['games'];
     
     public inline function new() {
         
@@ -83,17 +84,16 @@ class GameLoader {
     }
 
 	private function registerGameName(stateName:String, objectMemory:SharedMemory<Dynamic>, stringMemory:SharedMemory<String>) {
-        final registeredGamesKey = ['games'];
-        final registeredGames:Array<String> = objectMemory.getValue(SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, registeredGamesKey));
+        final registeredGames:Array<String> = objectMemory.getValue(SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, INITIALIZED_GAMES_MEMORY_KEY));
 
         if(registeredGames == null){
             objectMemory.setValue(
-                SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, registeredGamesKey),
+                SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, INITIALIZED_GAMES_MEMORY_KEY),
                 [stateName]
             );
         }
         else objectMemory.setValue(
-            SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, registeredGamesKey),
+            SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, INITIALIZED_GAMES_MEMORY_KEY),
             registeredGames.concat([stateName])
         );
 
@@ -102,7 +102,6 @@ class GameLoader {
             stateName
         );
 	}
-
 
     private function trackAllKnownKeys(sharedPluginMemory:SharedPluginMemory, memoryGameState:SharedMemoryGameState): Void {
         final boolKeys:Multitude<StateKey> = StateKey.boolKeys();
@@ -128,5 +127,11 @@ class GameLoader {
             memoryGameState.getPrefixedSharedMemoryKey(['trackstringarray']),
             key.toString(SharedMemoryGameState.SHARED_MEMORY_KEY_SEPARATOR)
         ));
+    }
+
+    public inline function gameWithNameExists(gameName:String, objectMemory:SharedMemory<Dynamic>):Bool {
+        return objectMemory.getValue(
+            SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, GameLoader.INITIALIZED_GAMES_MEMORY_KEY)
+        )?.contains(gameName);
     }
 }
