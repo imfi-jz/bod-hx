@@ -11,25 +11,24 @@ class FileGameState implements GameState {
     }
 
 	public function getName():String {
-		final fileName = file.getName();
-		Debugger.log('Actual file name: $fileName');
-		return fileName.substring(0, fileName.lastIndexOf('.'));
+		return file.getName();
 	}
 
-	public function getString(key:Array<String>):String {
+	public function getString(key:StateKey):String {
 		return file.getValueByNestedKey(key);
 	}
 
-	public function setString(key:Array<String>, value:String) {
+	public function setString(key:StateKey, value:String) {
 		file.setValueByNestedKey(key, value);
 	}
 
-	public function getFloat(key:Array<String>):Float {
+	public function getFloat(key:StateKey):Float {
 		return Std.parseFloat(file.getValueByNestedKey(key));
 	}
 
-	public function setFloat(key:Array<String>, value:Float) {
+	public function setFloat(key:StateKey, value:Float) {
 		if(value == cast(value, Int)){
+			Debugger.log('Saving float as int: $value');
 			file.setValueByNestedKey(key, Std.int(value));
 		}
 		else {
@@ -37,19 +36,19 @@ class FileGameState implements GameState {
 		}
 	}
 
-	public function getBool(key:Array<String>):Bool {
+	public function getBool(key:StateKey):Bool {
 		return file.getValueByNestedKey(key);
 	}
 
-	public function setBool(key:Array<String>, value:Bool) {
+	public function setBool(key:StateKey, value:Bool) {
 		file.setValueByNestedKey(key, value);
 	}
 
-	public function getStringArray(key:Array<String>):Array<String> {
+	public function getStringArray(key:StateKey):Array<String> {
 		return file.getValueByNestedKey(key);
 	}
 
-	public function setStringArray(key:Array<String>, value:Array<String>) {
+	public function setStringArray(key:StateKey, value:Array<String>) {
 		file.setValueByNestedKey(key, value);
 	}
 }

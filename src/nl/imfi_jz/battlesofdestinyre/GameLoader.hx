@@ -20,7 +20,7 @@ class GameLoader {
         
     }
 
-    public function getExistingGames(plugin:Plugin):Multitude<FileGameState> {
+    public function getExistingGamesAsFileState(plugin:Plugin):Multitude<FileGameState> {
         return FileSystem.readDirectory(Path.join(plugin.getFileSystemManager().getDataFolderPath([STATE_FOLDER_NAME])))
             .filter((fileName:String) -> fileName.toLowerCase().lastIndexOf(STATE_FILE_EXTENSION) > 0)
             .map((fileName:String) -> new GameStateFactory().createGameState(
@@ -31,11 +31,12 @@ class GameLoader {
 
     public function initializeGame(fileGameState:FileGameState, plugin:Plugin):Void {
         final stateName = fileGameState.getName();
-        final memoryGameState = new SharedMemoryGameState(stateName, plugin.getSharedPluginMemory(), plugin.getNameCapitals());
+        final sharePluginMemory = plugin.getSharedPluginMemory();
+        final memoryGameState = new SharedMemoryGameState(stateName, sharePluginMemory);
 
-        final addTracker = (stateName:String, typeKey:String, trackFunction:(key:Array<String>) -> Void) -> {
+        final addTracker = (typeKey:String, trackFunction:(key:Array<String>) -> Void) -> {
             plugin.getSharedPluginMemory().getStringMemory().valueChanged(
-                SharedMemoryGameState.getSharedMemoryKeyPrefix(stateName, ['track$typeKey']),
+                memoryGameState.getPrefixedSharedMemoryKey(['track$typeKey']),
                 (previousKey, key) -> {
                     if(key != null && key.length > 0){
                         trackFunction(key.split(SharedMemoryGameState.SHARED_MEMORY_KEY_SEPARATOR));
@@ -44,67 +45,83 @@ class GameLoader {
             );
         };
 
-        addTracker(stateName, "bool", (key) -> {
+        final stateChangeListener = new GameStateChangeListener(fileGameState);
+
+        addTracker("bool", (key) -> {
             // Initialize the memory game state with the value found in the file game state
             memoryGameState.setBool(key, fileGameState.getBool(key));
             // Add a standard change handler that saves changes to file, which can be extended by creating a new GameStateChangeListener later
-            new GameStateChangeListener(fileGameState, key).setBoolChangeHandler(plugin.getSharedPluginMemory().getBoolMemory());
+            stateChangeListener.setBoolChangeHandler(key, sharePluginMemory.getBoolMemory());
         });
-        // todo change to the above?
-        addTracker(stateName, "float", (key) -> memoryGameState.trackFloat(key, fileGameState));
-        addTracker(stateName, "string", (key) -> memoryGameState.trackString(key, fileGameState));
-        addTracker(stateName, "stringarray", (key) -> memoryGameState.trackStringArray(key, fileGameState));
+        addTracker("float", (key) -> {
+            memoryGameState.setFloat(key, fileGameState.getFloat(key));
+            stateChangeListener.setFloatChangeHandler(key, sharePluginMemory.getFloatMemory());
+        });
+        addTracker("string", (key) -> {
+            memoryGameState.setString(key, fileGameState.getString(key));
+            stateChangeListener.setStringChangeHandler(key, sharePluginMemory.getStringMemory());
+        });
+        addTracker("stringarray", (key) -> {
+            memoryGameState.setStringArray(key, fileGameState.getStringArray(key));
+            stateChangeListener.setStringArrayChangeHandler(key, sharePluginMemory.getObjectMemory());
+        });
 
-        trackAllKnownKeys(plugin.getSharedPluginMemory(), stateName);
+        trackAllKnownKeys(sharePluginMemory, memoryGameState);
 
-        registerGameName(stateName, plugin.getSharedPluginMemory().getObjectMemory());
+        registerGameName(stateName, sharePluginMemory.getObjectMemory(), sharePluginMemory.getStringMemory());
 
-        /* new Clock(
-            plugin.getSharedPluginMemory(),
-            fileGameState, // fixme
-            plugin.getScheduler()
-        ); */
+        new Clock(
+            sharePluginMemory,
+            plugin.getScheduler(),
+            memoryGameState,
+            stateChangeListener
+        );
     }
 
-	private function registerGameName(stateName:String, objectMemory:SharedMemory<Dynamic>) {
+	private function registerGameName(stateName:String, objectMemory:SharedMemory<Dynamic>, stringMemory:SharedMemory<String>) {
         final registeredGamesKey = ['games'];
-        final registeredGames:Array<String> = objectMemory.getValue(SharedMemoryGameState.getSharedMemoryKeyPrefix(null, registeredGamesKey));
+        final registeredGames:Array<String> = objectMemory.getValue(SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, registeredGamesKey));
 
         if(registeredGames == null){
             objectMemory.setValue(
-                SharedMemoryGameState.getSharedMemoryKeyPrefix(null, registeredGames),
+                SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, registeredGamesKey),
                 [stateName]
             );
         }
         else objectMemory.setValue(
-            SharedMemoryGameState.getSharedMemoryKeyPrefix(null, registeredGames),
+            SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, registeredGamesKey),
             registeredGames.concat([stateName])
+        );
+
+        stringMemory.setValue(
+            SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, ['last game added']),
+            stateName
         );
 	}
 
 
-    private function trackAllKnownKeys(sharedPluginMemory:SharedPluginMemory, stateName:String): Void {
+    private function trackAllKnownKeys(sharedPluginMemory:SharedPluginMemory, memoryGameState:SharedMemoryGameState): Void {
         final boolKeys:Multitude<StateKey> = StateKey.boolKeys();
         boolKeys.each((key) -> sharedPluginMemory.getStringMemory().setValue(
-            SharedMemoryGameState.getSharedMemoryKeyPrefix(stateName, ['trackbool']),
+            memoryGameState.getPrefixedSharedMemoryKey(['trackbool']),
             key.toString(SharedMemoryGameState.SHARED_MEMORY_KEY_SEPARATOR)
         ));
 
         final floatKeys:Multitude<StateKey> = StateKey.floatKeys().concat(StateKey.intKeys());
         floatKeys.each((key) -> sharedPluginMemory.getStringMemory().setValue(
-            SharedMemoryGameState.getSharedMemoryKeyPrefix(stateName, ['trackfloat']),
+            memoryGameState.getPrefixedSharedMemoryKey(['trackfloat']),
             key.toString(SharedMemoryGameState.SHARED_MEMORY_KEY_SEPARATOR)
         ));
 
         final stringKeys:Multitude<StateKey> = StateKey.stringKeys();
         stringKeys.each((key) -> sharedPluginMemory.getStringMemory().setValue(
-            SharedMemoryGameState.getSharedMemoryKeyPrefix(stateName, ['trackstring']),
+            memoryGameState.getPrefixedSharedMemoryKey(['trackstring']),
             key.toString(SharedMemoryGameState.SHARED_MEMORY_KEY_SEPARATOR)
         ));
         
         final stringArrayKeys:Multitude<StateKey> = StateKey.stringArrayKeys();
         stringArrayKeys.each((key) -> sharedPluginMemory.getStringMemory().setValue(
-            SharedMemoryGameState.getSharedMemoryKeyPrefix(stateName, ['trackstringarray']),
+            memoryGameState.getPrefixedSharedMemoryKey(['trackstringarray']),
             key.toString(SharedMemoryGameState.SHARED_MEMORY_KEY_SEPARATOR)
         ));
     }

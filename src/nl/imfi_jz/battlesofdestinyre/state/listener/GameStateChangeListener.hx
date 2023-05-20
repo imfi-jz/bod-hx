@@ -3,40 +3,38 @@ package nl.imfi_jz.battlesofdestinyre.state.listener;
 import nl.imfi_jz.minecraft_api.Gate.SharedMemory;
 
 class GameStateChangeListener {
-    private final fileGameState:FileGameState;
-    private final key:StateKey;
+    private final persistentGameState:GameState;
 
-    public function new(fileGameState, key) {
-        this.fileGameState = fileGameState;
-        this.key = key;
+    public function new(persistentGameState) {
+        this.persistentGameState = persistentGameState;
     }
 
-    private function handle<T>(sharedMemory:SharedMemory<T>, persistFunction:(newValue:T)->Void, handler:(newValue:T)->Void):Void {
+    private function handle<T>(sharedMemory:SharedMemory<T>, key:StateKey, persistFunction:(newValue:T)->Void, handler:(previousValue:T, newValue:T)->Void):Void {
         sharedMemory.valueChanged(
-            SharedMemoryGameState.getSharedMemoryKeyPrefix(fileGameState.getName(), key),
+            SharedMemoryGameState.getAPrefixedSharedMemoryKey(persistentGameState.getName(), key),
             (previousValue, newValue) -> {
                 persistFunction(newValue);
 
                 if(handler != null) {
-                    handler(newValue);
+                    handler(previousValue, newValue);
                 }
             }
         );
     }
 
-    public function setBoolChangeHandler(sharedMemory:SharedMemory<Bool>, ?handler:(newValue:Bool)->Void):Void {
-        handle(sharedMemory, (newValue) -> fileGameState.setBool(key, newValue), handler);
+    public function setBoolChangeHandler(key:StateKey, sharedMemory:SharedMemory<Bool>, ?handler:(previousValue:Bool, newValue:Bool)->Void):Void {
+        handle(sharedMemory, key, (newValue) -> persistentGameState.setBool(key, newValue), handler);
     }
 
-    public function setFloatChangeHandler(sharedMemory:SharedMemory<Float>, ?handler:(newValue:Float)->Void):Void {
-        handle(sharedMemory, (newValue) -> fileGameState.setFloat(key, newValue), handler);
+    public function setFloatChangeHandler(key:StateKey, sharedMemory:SharedMemory<Float>, ?handler:(previousValue:Float, newValue:Float)->Void):Void {
+        handle(sharedMemory, key, (newValue) -> persistentGameState.setFloat(key, newValue), handler);
     }
 
-    public function setStringChangeHandler(sharedMemory:SharedMemory<String>, ?handler:(newValue:String)->Void):Void {
-        handle(sharedMemory, (newValue) -> fileGameState.setString(key, newValue), handler);
+    public function setStringChangeHandler(key:StateKey, sharedMemory:SharedMemory<String>, ?handler:(previousValue:String, newValue:String)->Void):Void {
+        handle(sharedMemory, key, (newValue) -> persistentGameState.setString(key, newValue), handler);
     }
 
-    public function setStringArrayChangeHandler(sharedMemory:SharedMemory<Dynamic>, ?handler:(newValue:Dynamic)->Void):Void {
-        handle(sharedMemory, (newValue) -> fileGameState.setStringArray(key, newValue), handler);
+    public function setStringArrayChangeHandler(key:StateKey, sharedMemory:SharedMemory<Dynamic>, ?handler:(previousValue:Dynamic, newValue:Dynamic)->Void):Void {
+        handle(sharedMemory, key, (newValue) -> persistentGameState.setStringArray(key, newValue), handler);
     }
 }
