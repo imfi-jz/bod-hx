@@ -16,35 +16,40 @@ class FileGameState implements GameState {
 		return fileName.substring(0, fileName.lastIndexOf('.'));
 	}
 
-	public function getStage():String {
-		return file.getValue(StateKey.STAGE);
+	public function getString(key:Array<String>):String {
+		return file.getValueByNestedKey(key);
 	}
 
-	public function setStage(stage:String) {
-		file.setValue(StateKey.STAGE, stage);
+	public function setString(key:Array<String>, value:String) {
+		file.setValueByNestedKey(key, value);
 	}
 
-	public function getSecondsRemaining():Int {
-		return file.getValue(StateKey.SECONDS_REMAINING);
+	public function getFloat(key:Array<String>):Float {
+		return Std.parseFloat(file.getValueByNestedKey(key));
 	}
 
-	public function setSecondsRemaining(secondsRemaining:Int) {
-		file.setValue(StateKey.SECONDS_REMAINING, secondsRemaining);
+	public function setFloat(key:Array<String>, value:Float) {
+		if(value == cast(value, Int)){
+			file.setValueByNestedKey(key, Std.int(value));
+		}
+		else {
+			file.setValueByNestedKey(key, value);
+		}
 	}
 
-	public function getSecondsBetweenTicks():Int {
-		return file.getValue(StateKey.SECONDS_BETWEEN_TICKS);
+	public function getBool(key:Array<String>):Bool {
+		return file.getValueByNestedKey(key);
 	}
 
-	public function setSecondsBetweenTicks(secondsBetweenTicks:Int) {
-		file.setValue(StateKey.SECONDS_BETWEEN_TICKS, secondsBetweenTicks);
+	public function setBool(key:Array<String>, value:Bool) {
+		file.setValueByNestedKey(key, value);
 	}
 
-	public function isPaused():Bool {
-		return file.getValue(StateKey.PAUSED);
+	public function getStringArray(key:Array<String>):Array<String> {
+		return file.getValueByNestedKey(key);
 	}
 
-	public function setPaused(paused:Bool) {
-		file.setValue(StateKey.PAUSED, paused);
+	public function setStringArray(key:Array<String>, value:Array<String>) {
+		file.setValueByNestedKey(key, value);
 	}
 }

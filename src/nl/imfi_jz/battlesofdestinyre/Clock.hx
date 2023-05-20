@@ -1,6 +1,6 @@
 package nl.imfi_jz.battlesofdestinyre;
 
-import nl.imfi_jz.battlesofdestinyre.state.CombinedGameState;
+import nl.imfi_jz.battlesofdestinyre.state.SharedMemoryGameState;
 import nl.imfi_jz.battlesofdestinyre.state.GameState;
 import nl.imfi_jz.minecraft_api.implementation.Debugger;
 import nl.imfi_jz.minecraft_api.Gate.Scheduler;
@@ -15,7 +15,7 @@ class Clock {
     private final scheduler:Scheduler;
     private final sharedMemoryKeyPrefix:String;
     
-    public inline function new(sharedMemory:SharedPluginMemory, combinedGameState:CombinedGameState, scheduler) {
+    public inline function new(sharedMemory:SharedPluginMemory, scheduler) {
         this.scheduler = scheduler;
         boolMemory = sharedMemory.getBoolMemory();
         floatMemory = sharedMemory.getFloatMemory();
@@ -23,7 +23,7 @@ class Clock {
         gameState = combinedGameState;
 
         boolMemory.valueChanged(
-            sharedMemoryKeyPrefix + StateKey.PAUSED,
+            SharedMemoryGameState.getSharedMemoryKeyPrefix(combinedGameState.getName(), StateKey.PAUSED), // TODO replace with listener
             pauseToggle
         );
     }
@@ -42,6 +42,8 @@ class Clock {
 
     private function start() {
         Debugger.log("Started game");
+
+        // TODO schedule here and add a "paused" check before calling tick and rescheduling
 
         floatMemory.valueChanged(
             sharedMemoryKeyPrefix + StateKey.SECONDS_REMAINING,
