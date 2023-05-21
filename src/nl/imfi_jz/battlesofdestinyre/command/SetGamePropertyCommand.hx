@@ -1,5 +1,6 @@
 package nl.imfi_jz.battlesofdestinyre.command;
 
+import nl.imfi_jz.minecraft_api.implementation.Debugger;
 import nl.imfi_jz.minecraft_api.MessageReceiver;
 import nl.imfi_jz.minecraft_api.Gate.SharedPluginMemory;
 import nl.imfi_jz.minecraft_api.Gate.SharedMemory;
@@ -12,6 +13,7 @@ import nl.imfi_jz.minecraft_api.GameObject;
 import nl.imfi_jz.minecraft_api.Command;
 
 class SetGamePropertyCommand implements Command {
+    private static inline final ARGUMENT_WITH_SPACES_INDICATOR = '"';
 
     private final sharedMemory:SharedPluginMemory;
     private final pluginNameCapitalLower:String;
@@ -34,58 +36,87 @@ class SetGamePropertyCommand implements Command {
         sharedMemoryForValuesType.setValue(sharedMemoryKey, convertStringValueToMemoryType(value));
     }
 
-    private function usagesReported(arguments:StandardCollection<String>, ?executor:MessageReceiver):Bool {
-        // TODO check for spaces within value argument. Use parantheses to mark start and end.
-        final usage = 'Usage: /hxp $pluginNameCapitalLower set <value> [to] <game name> <state key>';
-        if(!currectNumberOfArguments(arguments)){
+    private function usagesReported(parsedArguments:StandardCollection<String>, ?executor:MessageReceiver):Bool {
+        final usageArguments = '"<game name>.<state key>" "<value>"';
+        final usage = 'Usage: /hxp $pluginNameCapitalLower set $usageArguments';
+        if(!currectNumberOfArguments(parsedArguments)){
             executor?.tell('Invalid number of arguments. $usage');
-            return false;
+            return true;
         }
-        else if(!isValidStateKey(getStateKeyArgument(arguments))) {
-            executor?.tell('Invalid state key. To set custom state keys, use: /hxp $pluginNameCapitalLower setcustom <value> [to] <game name> <state key>');
-            return false;
+        else if(getStateKeyArgument(parsedArguments).length <= 0){
+            executor?.tell('No state key was given. $usage');
+            return true;
         }
-        else if(!gameExists(getGameNameArgument(arguments))) {
-            executor?.tell('No game found with name "' + getGameNameArgument(arguments) + '". $usage');
-            return false;
+        else if(getValueArgument(parsedArguments).length <= 0){
+            executor?.tell('No value was given. $usage');
+            return true;
         }
-        else return true;
+        else if(!isValidStateKey(getStateKeyArgument(parsedArguments))) {
+            executor?.tell('Invalid state key. To set custom state keys, use: /hxp $pluginNameCapitalLower setcustom $usageArguments');
+            return true;
+        }
+        else if(!gameExists(getGameNameArgument(parsedArguments))) {
+            executor?.tell('No game found with name "' + getGameNameArgument(parsedArguments) + '". $usage');
+            return true;
+        }
+        else return false;
     }
 
     private function reportSuccess(executor:MessageReceiver) {
         executor.tell("Successfully set game property");
     }
 
-    private function currectNumberOfArguments(arguments:StandardCollection<String>):Bool {
-        if(arguments.length >= 3) {
-            if(argumentsContainsOptionalTo(arguments)) {
-                return arguments.length >= 4;
+    private function currectNumberOfArguments(parsedArguments:StandardCollection<String>):Bool {
+        if(parsedArguments.length > 2){
+            return StringTools.startsWith(parsedArguments[0], ARGUMENT_WITH_SPACES_INDICATOR)
+                || StringTools.endsWith(parsedArguments[parsedArguments.length - 1], ARGUMENT_WITH_SPACES_INDICATOR);
+        }
+        else return parsedArguments.length == 2;
+    }
+
+    /**
+        Takes the input arguments, which are split by space, and returns a new Array where the first element is <game name>.<state key> and the second element is <value>.
+        In the input, <game>.<state key> and <value> should be surrounded by quotes if it contains spaces.
+    **/
+    private function parseArguments(arguments:StandardCollection<String>):Array<String> {
+        if(arguments.length >= 2){
+            final argumentsSplitByIndicator = arguments.join(" ")
+                .split(ARGUMENT_WITH_SPACES_INDICATOR)
+                .filter(str -> str.length > 0);
+
+            if(argumentsSplitByIndicator.length == 1){
+                return [arguments[0], arguments[1]];
             }
-            else return true;
+            else if(argumentsSplitByIndicator.length == 2){
+                if(arguments[0].charAt(0) == ARGUMENT_WITH_SPACES_INDICATOR){
+                    return [
+                        argumentsSplitByIndicator[0],
+                        argumentsSplitByIndicator[1].substring(1)
+                    ];
+                }
+                else return [
+                    argumentsSplitByIndicator[0].substring(0, argumentsSplitByIndicator[0].length - 1),
+                    argumentsSplitByIndicator[1]
+                ];
+            }
+            else return [
+                argumentsSplitByIndicator[0],
+                argumentsSplitByIndicator[2]
+            ];
         }
-        else return false;
+        else return [];
     }
 
-    private function argumentsContainsOptionalTo(arguments:StandardCollection<String>):Bool {
-        return arguments[1].toLowerCase() == "to";
+    private function getGameNameArgument(parsedArguments:StandardCollection<String>):String {
+        return parsedArguments[0].substring(0, parsedArguments[0].indexOf(SharedMemoryGameState.SHARED_MEMORY_KEY_SEPARATOR));
     }
 
-    private function getGameNameArgument(arguments:StandardCollection<String>):String {
-        if(argumentsContainsOptionalTo(arguments)) {
-            return arguments[2];
-        }
-        else return arguments[1];
+    private function getValueArgument(parsedArguments:StandardCollection<String>):String {
+        return parsedArguments[1];
     }
 
-    private function getValueArgument(arguments:StandardCollection<String>):String {
-        return arguments[0];
-    }
-
-    private function getStateKeyArgument(arguments:StandardCollection<String>):String {
-        if(argumentsContainsOptionalTo(arguments)) {
-            return arguments.slice(3).join(" ");
-        }
-        else return arguments.slice(2).join(" ");
+    private function getStateKeyArgument(parsedArguments:StandardCollection<String>):String {
+        return parsedArguments[0].substring(parsedArguments[0].indexOf(SharedMemoryGameState.SHARED_MEMORY_KEY_SEPARATOR) + 1);
     }
 
     private function isValidStateKey(stateKey:String):Bool {   
@@ -106,7 +137,7 @@ class SetGamePropertyCommand implements Command {
         else if(value.toLowerCase() == "true" || value.toLowerCase() == "false"){
             return sharedMemory.getBoolMemory();
         }
-        else if(Std.parseFloat(value) == Math.NaN){
+        else if(Math.isNaN(Std.parseFloat(value))){
             return sharedMemory.getStringMemory();
         }
         else return sharedMemory.getStringMemory();
@@ -121,23 +152,29 @@ class SetGamePropertyCommand implements Command {
         else if(value.toLowerCase() == "true" || value.toLowerCase() == "false"){
             return value.toLowerCase() == "true";
         }
-        else if(Std.parseFloat(value) == Math.NaN){
-            return value;
+        else if(Math.isNaN(Std.parseFloat(value))){
+            if(value == Std.string(null)){
+                return null;
+            }
+            else return value;
         }
         else return Std.parseFloat(value);
     }
 
 	public function executeByConsole(executor:ConsoleLogger, arguments:StandardCollection<String>) {
-        if(!usagesReported(arguments, executor)) {
-            execute(getGameNameArgument(arguments), getStateKeyArgument(arguments), getValueArgument(arguments));
+        final parsedArguments = parseArguments(arguments);
+        Debugger.log("Parsed arguments: " + parsedArguments);
+        if(!usagesReported(parsedArguments, executor)) {
+            execute(getGameNameArgument(parsedArguments), getStateKeyArgument(parsedArguments), getValueArgument(parsedArguments));
             reportSuccess(executor);
         }
     }
 
 	public function executeByPlayer(executor:Player, arguments:StandardCollection<String>) {
         if(executor.getPermissionLevel() >= CreateGameCommand.REQUIRED_PERMISSION_LEVEL){
-            if(!usagesReported(arguments, executor)) {
-                execute(getGameNameArgument(arguments), getStateKeyArgument(arguments), getValueArgument(arguments));
+            final parsedArguments = parseArguments(arguments);
+            if(!usagesReported(parsedArguments, executor)) {
+                execute(getGameNameArgument(parsedArguments), getStateKeyArgument(parsedArguments), getValueArgument(parsedArguments));
                 reportSuccess(executor);
             }
         }
@@ -145,14 +182,16 @@ class SetGamePropertyCommand implements Command {
     }
 
 	public function executeByBlock(executor:Block, arguments:StandardCollection<String>) {
-        if(!usagesReported(arguments)) {
-            execute(getGameNameArgument(arguments), getStateKeyArgument(arguments), getValueArgument(arguments));
+        final parsedArguments = parseArguments(arguments);
+        if(!usagesReported(parsedArguments)) {
+            execute(getGameNameArgument(parsedArguments), getStateKeyArgument(parsedArguments), getValueArgument(parsedArguments));
         }
     }
 
 	public function executeByGameObject(executor:GameObject, arguments:StandardCollection<String>) {
-        if(!usagesReported(arguments)) {
-            execute(getGameNameArgument(arguments), getStateKeyArgument(arguments), getValueArgument(arguments));
+        final parsedArguments = parseArguments(arguments);
+        if(!usagesReported(parsedArguments)) {
+            execute(getGameNameArgument(parsedArguments), getStateKeyArgument(parsedArguments), getValueArgument(parsedArguments));
         }
     }
 }

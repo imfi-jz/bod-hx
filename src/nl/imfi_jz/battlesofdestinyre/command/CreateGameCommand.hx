@@ -57,9 +57,7 @@ class CreateGameCommand implements Command {
             executor?.tell("A game with this name already exists. Please choose a different name");
             return true;
         }
-        else {
-            return false;
-        }
+        else return false;
     }
 
     private function reportSuccess(gameName, ?executor:MessageReceiver) {

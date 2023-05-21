@@ -13,6 +13,9 @@ class BattlesOfDestinyGate implements Gate {
 
         Debugger.log("Debugger enabled");
 
+        final gameLoader = new GameLoader();
+        gameLoader.getExistingGamesAsFileStates(plugin).each((state) -> gameLoader.initializeGame(state, plugin));
+
         plugin.getRegisterer().registerCommand(new CreateGameCommand(plugin));
         plugin.getRegisterer().registerCommand(new SetGamePropertyCommand(
             plugin.getSharedPluginMemory(),

@@ -21,7 +21,7 @@ class GameLoader {
         
     }
 
-    public function getExistingGamesAsFileState(plugin:Plugin):Multitude<FileGameState> {
+    public function getExistingGamesAsFileStates(plugin:Plugin):Multitude<FileGameState> {
         final gamesDirectory = Path.join(plugin.getFileSystemManager().getDataFolderPath([STATE_FOLDER_NAME]));
         if(FileSystem.exists(gamesDirectory)){
             return FileSystem.readDirectory(gamesDirectory)
