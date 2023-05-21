@@ -1,5 +1,6 @@
 package nl.imfi_jz.battlesofdestinyre;
 
+import nl.imfi_jz.battlesofdestinyre.command.JoinGameCommand;
 import nl.imfi_jz.battlesofdestinyre.command.SetGamePropertyCommand;
 import nl.imfi_jz.battlesofdestinyre.command.CreateGameCommand;
 import nl.imfi_jz.minecraft_api.implementation.Debugger;
@@ -20,6 +21,9 @@ class BattlesOfDestinyGate implements Gate {
         plugin.getRegisterer().registerCommand(new SetGamePropertyCommand(
             plugin.getSharedPluginMemory(),
             plugin.getNameCapitals().toLowerCase()
+        ));
+        plugin.getRegisterer().registerCommand(new JoinGameCommand(
+            plugin.getSharedPluginMemory().getObjectMemory()
         ));
     }
 

@@ -51,4 +51,20 @@ class FileGameState implements GameState {
 	public function setStringArray(key:StateKey, value:Array<String>) {
 		file.setValueByNestedKey(key, value);
 	}
+
+	public function getAllBoolStateKeysPresent():Array<Array<String>> {
+		return file.getNestedKeys().filter((key) -> file.getValueByNestedKey(key) is Bool);
+	}
+
+	public function getAllFloatStateKeysPresent():Array<Array<String>> {
+		return file.getNestedKeys().filter((key) -> !Math.isNaN(Std.parseFloat(file.getValueByNestedKey(key))));
+	}
+
+	public function getAllStringStateKeysPresent():Array<Array<String>> {
+		return file.getNestedKeys().filter((key) -> file.getValueByNestedKey(key) is String);
+	}
+
+	public function getAllStringArrayStateKeysPresent():Array<Array<String>> {
+		return file.getNestedKeys().filter((key) -> file.getValueByNestedKey(key) is Array);
+	}
 }

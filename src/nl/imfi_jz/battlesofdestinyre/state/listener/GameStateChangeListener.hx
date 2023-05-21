@@ -3,10 +3,14 @@ package nl.imfi_jz.battlesofdestinyre.state.listener;
 import nl.imfi_jz.minecraft_api.Gate.SharedMemory;
 
 class GameStateChangeListener {
-    private final persistentGameState:GameState;
+    private static final TRACKED_KEYS_MEMORY_KEY = ['keys'];
 
-    public function new(persistentGameState) {
-        this.persistentGameState = persistentGameState;
+    private final persistentGameState:GameState;
+    private final objectMemory:SharedMemory<Dynamic>;
+
+    public function new(fileGameState, objectMemory) {
+        this.persistentGameState = fileGameState;
+        this.objectMemory = objectMemory;
     }
 
     private function handle<T>(sharedMemory:SharedMemory<T>, key:StateKey, persistFunction:(newValue:T)->Void, handler:(previousValue:T, newValue:T)->Void):Void {
@@ -20,6 +24,8 @@ class GameStateChangeListener {
                 }
             }
         );
+
+        addKeyToTrackedKeys(key.toString(SharedMemoryGameState.SHARED_MEMORY_KEY_SEPARATOR), persistentGameState.getName());
     }
 
     public function setBoolChangeHandler(key:StateKey, sharedMemory:SharedMemory<Bool>, ?handler:(previousValue:Bool, newValue:Bool)->Void):Void {
@@ -36,5 +42,25 @@ class GameStateChangeListener {
 
     public function setStringArrayChangeHandler(key:StateKey, sharedMemory:SharedMemory<Dynamic>, ?handler:(previousValue:Dynamic, newValue:Dynamic)->Void):Void {
         handle(sharedMemory, key, (newValue) -> persistentGameState.setStringArray(key, newValue), handler);
+    }
+
+    private function addKeyToTrackedKeys(key:String, gameName:String) {
+        final gameTrackedKeysKey = TRACKED_KEYS_MEMORY_KEY.concat([gameName]);
+        final existingTrackedKeys:Array<String> = objectMemory.getValue(
+            SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, gameTrackedKeysKey)
+        );
+
+        if(existingTrackedKeys == null){
+            objectMemory.setValue(
+                SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, gameTrackedKeysKey),
+                [key]
+            );
+        }
+        else if(!existingTrackedKeys.contains(key)){
+            objectMemory.setValue(
+                SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, gameTrackedKeysKey),
+                existingTrackedKeys.concat([key])
+            );
+        }
     }
 }

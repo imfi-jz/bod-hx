@@ -5,6 +5,7 @@ abstract StateKey(Array<String>) from Array<String> to Array<String> {
     public static final SECONDS_REMAINING:StateKey = ["Seconds remaining"];
     public static final PAUSED:StateKey = ["Paused"];
     public static final SECONDS_BETWEEN_TICKS:StateKey = ["Seconds between ticks"];
+    public static final ALLOW_JOINS:StateKey = ["Allow joins"];
 
     public inline function toString(delimiter:String):String {
         return this.join(delimiter);
@@ -17,13 +18,14 @@ abstract StateKey(Array<String>) from Array<String> to Array<String> {
     public static inline function boolKeys():Array<StateKey> {
         return [
             PAUSED,
+            ALLOW_JOINS,
         ];
     }
     
     public static inline function intKeys():Array<StateKey> {
         return [
             SECONDS_REMAINING,
-            SECONDS_BETWEEN_TICKS
+            SECONDS_BETWEEN_TICKS,
         ];
     }
     
@@ -35,7 +37,7 @@ abstract StateKey(Array<String>) from Array<String> to Array<String> {
 
     public static inline function stringKeys():Array<StateKey> {
         return [
-            STAGE
+            STAGE,
         ];
     }
 
@@ -43,5 +45,9 @@ abstract StateKey(Array<String>) from Array<String> to Array<String> {
         return [
             
         ];
+    }
+
+    public static inline function playerTeam(playerName:String):StateKey {
+        return ["Player", playerName, "Team"];
     }
 }

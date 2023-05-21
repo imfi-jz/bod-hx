@@ -15,6 +15,7 @@ import nl.imfi_jz.minecraft_api.Gate.Plugin;
 class GameLoader {
     public static inline final STATE_FOLDER_NAME = "games";
     private static inline final STATE_FILE_EXTENSION = ".yml";
+
     private static final INITIALIZED_GAMES_MEMORY_KEY = ['games'];
     private static final LAST_GAME_ADDED_MEMORY_KEY = ['lastgameadded'];
     
@@ -51,7 +52,7 @@ class GameLoader {
             );
         };
 
-        final stateChangeListener = new GameStateChangeListener(fileGameState);
+        final stateChangeListener = new GameStateChangeListener(fileGameState, sharePluginMemory.getObjectMemory());
 
         addTracker("bool", (key) -> {
             // Initialize the memory game state with the value found in the file game state
@@ -72,7 +73,7 @@ class GameLoader {
             stateChangeListener.setStringArrayChangeHandler(key, sharePluginMemory.getObjectMemory());
         });
 
-        trackAllKnownKeys(sharePluginMemory, memoryGameState);
+        trackAllKnownKeys(sharePluginMemory, memoryGameState, fileGameState);
 
         registerGameName(stateName, sharePluginMemory.getObjectMemory(), sharePluginMemory.getStringMemory());
 
@@ -104,26 +105,27 @@ class GameLoader {
         );
 	}
 
-    private function trackAllKnownKeys(sharedPluginMemory:SharedPluginMemory, memoryGameState:SharedMemoryGameState): Void {
-        final boolKeys:Multitude<StateKey> = StateKey.boolKeys();
+    private function trackAllKnownKeys(sharedPluginMemory:SharedPluginMemory, memoryGameState:SharedMemoryGameState, fileGameState:FileGameState): Void {
+        final boolKeys:Multitude<StateKey> = fileGameState.getAllBoolStateKeysPresent().concat(StateKey.boolKeys());
         boolKeys.each((key) -> sharedPluginMemory.getStringMemory().setValue(
             memoryGameState.getPrefixedSharedMemoryKey(['trackbool']),
             key.toString(SharedMemoryGameState.SHARED_MEMORY_KEY_SEPARATOR)
         ));
 
-        final floatKeys:Multitude<StateKey> = StateKey.floatKeys().concat(StateKey.intKeys());
+        final floatKeys:Multitude<StateKey> = fileGameState.getAllFloatStateKeysPresent()
+            .concat(StateKey.floatKeys().concat(StateKey.intKeys()));
         floatKeys.each((key) -> sharedPluginMemory.getStringMemory().setValue(
             memoryGameState.getPrefixedSharedMemoryKey(['trackfloat']),
             key.toString(SharedMemoryGameState.SHARED_MEMORY_KEY_SEPARATOR)
         ));
 
-        final stringKeys:Multitude<StateKey> = StateKey.stringKeys();
+        final stringKeys:Multitude<StateKey> = fileGameState.getAllStringStateKeysPresent().concat(StateKey.stringKeys());
         stringKeys.each((key) -> sharedPluginMemory.getStringMemory().setValue(
             memoryGameState.getPrefixedSharedMemoryKey(['trackstring']),
             key.toString(SharedMemoryGameState.SHARED_MEMORY_KEY_SEPARATOR)
         ));
         
-        final stringArrayKeys:Multitude<StateKey> = StateKey.stringArrayKeys();
+        final stringArrayKeys:Multitude<StateKey> = fileGameState.getAllStringArrayStateKeysPresent().concat(StateKey.stringArrayKeys());
         stringArrayKeys.each((key) -> sharedPluginMemory.getStringMemory().setValue(
             memoryGameState.getPrefixedSharedMemoryKey(['trackstringarray']),
             key.toString(SharedMemoryGameState.SHARED_MEMORY_KEY_SEPARATOR)
