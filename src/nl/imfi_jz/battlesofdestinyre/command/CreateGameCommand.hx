@@ -60,14 +60,15 @@ class CreateGameCommand implements Command {
         else return false;
     }
 
-    private function reportSuccess(gameName, ?executor:MessageReceiver) {
+    private function reportSuccess(?executor:MessageReceiver) {
+        final gameName = new GameLoader().getNameOfLastGameAdded(plugin.getSharedPluginMemory().getStringMemory());
         executor.tell('Game $gameName created');
     }
 
 	public function executeByConsole(executor:ConsoleLogger, arguments:StandardCollection<String>) {
         if(!issuesReported(arguments, executor)){
             execute(getNameArgument(arguments));
-            reportSuccess(getNameArgument(arguments), executor);
+            reportSuccess(executor);
         }
     }
 
@@ -75,7 +76,7 @@ class CreateGameCommand implements Command {
         if(executor.getPermissionLevel() >= REQUIRED_PERMISSION_LEVEL){
             if(!issuesReported(arguments, executor)){
                 execute(getNameArgument(arguments));
-                reportSuccess(getNameArgument(arguments), executor);
+                reportSuccess(executor);
             }
         }
         else {

@@ -16,6 +16,7 @@ class GameLoader {
     public static inline final STATE_FOLDER_NAME = "games";
     private static inline final STATE_FILE_EXTENSION = ".yml";
     private static final INITIALIZED_GAMES_MEMORY_KEY = ['games'];
+    private static final LAST_GAME_ADDED_MEMORY_KEY = ['lastgameadded'];
     
     public inline function new() {
         
@@ -98,7 +99,7 @@ class GameLoader {
         );
 
         stringMemory.setValue(
-            SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, ['lastgameadded']),
+            SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, LAST_GAME_ADDED_MEMORY_KEY),
             stateName
         );
 	}
@@ -133,5 +134,11 @@ class GameLoader {
         return objectMemory.getValue(
             SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, GameLoader.INITIALIZED_GAMES_MEMORY_KEY)
         )?.contains(gameName);
+    }
+
+    public inline function getNameOfLastGameAdded(stringMemory:SharedMemory<String>):String {
+        return stringMemory.getValue(
+            SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, GameLoader.LAST_GAME_ADDED_MEMORY_KEY)
+        );   
     }
 }
