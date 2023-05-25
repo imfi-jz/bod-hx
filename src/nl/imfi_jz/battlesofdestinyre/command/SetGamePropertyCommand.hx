@@ -1,5 +1,6 @@
 package nl.imfi_jz.battlesofdestinyre.command;
 
+import nl.imfi_jz.battlesofdestinyre.game.GameLoader;
 import nl.imfi_jz.minecraft_api.implementation.Debugger;
 import nl.imfi_jz.minecraft_api.MessageReceiver;
 import nl.imfi_jz.minecraft_api.Gate.SharedPluginMemory;

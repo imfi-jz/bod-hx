@@ -1,5 +1,6 @@
 package nl.imfi_jz.battlesofdestinyre.state;
 
+import nl.imfi_jz.battlesofdestinyre.game.GameLoader;
 import nl.imfi_jz.battlesofdestinyre.state.FileGameState;
 import nl.imfi_jz.minecraft_api.Gate.Plugin;
 

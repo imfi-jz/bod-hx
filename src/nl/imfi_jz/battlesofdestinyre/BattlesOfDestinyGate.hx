@@ -1,5 +1,6 @@
 package nl.imfi_jz.battlesofdestinyre;
 
+import nl.imfi_jz.battlesofdestinyre.game.GameLoader;
 import nl.imfi_jz.battlesofdestinyre.command.JoinGameCommand;
 import nl.imfi_jz.battlesofdestinyre.command.SetGamePropertyCommand;
 import nl.imfi_jz.battlesofdestinyre.command.CreateGameCommand;

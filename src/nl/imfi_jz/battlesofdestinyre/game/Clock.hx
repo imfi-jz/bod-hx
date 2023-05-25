@@ -1,4 +1,4 @@
-package nl.imfi_jz.battlesofdestinyre;
+package nl.imfi_jz.battlesofdestinyre.game;
 
 import nl.imfi_jz.battlesofdestinyre.state.listener.GameStateChangeListener;
 import nl.imfi_jz.battlesofdestinyre.state.GameState;
