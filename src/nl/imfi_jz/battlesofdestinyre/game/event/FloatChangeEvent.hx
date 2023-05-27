@@ -7,10 +7,11 @@ import nl.imfi_jz.battlesofdestinyre.state.listener.GameStateChangeListener;
 abstract class FloatChangeEvent extends StateChangeEvent<Float> {
     
     public function new(
-        gameStateChangeListener:GameStateChangeListener,
         stateKey:StateKey,
-        sharedMemory:SharedMemory<Float>
+        sharedMemory:SharedMemory<Float>,
+        gameStateChangeListener:GameStateChangeListener
     ) {
+        super();
         gameStateChangeListener.setFloatChangeHandler(stateKey, sharedMemory, handle);
     }
 }

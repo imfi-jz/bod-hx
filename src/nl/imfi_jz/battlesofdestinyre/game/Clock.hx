@@ -1,65 +1,43 @@
 package nl.imfi_jz.battlesofdestinyre.game;
 
+import nl.imfi_jz.battlesofdestinyre.state.StateKey;
+import nl.imfi_jz.battlesofdestinyre.state.SharedMemoryGameState;
+import nl.imfi_jz.battlesofdestinyre.game.event.TickEvent;
 import nl.imfi_jz.battlesofdestinyre.state.listener.GameStateChangeListener;
-import nl.imfi_jz.battlesofdestinyre.state.GameState;
 import nl.imfi_jz.minecraft_api.implementation.Debugger;
 import nl.imfi_jz.minecraft_api.Gate.Scheduler;
-import nl.imfi_jz.battlesofdestinyre.state.StateKey;
-import nl.imfi_jz.minecraft_api.Gate.SharedPluginMemory;
 import nl.imfi_jz.minecraft_api.Gate.SharedMemory;
 
 class Clock {
-    private final boolMemory:SharedMemory<Bool>;
     private final floatMemory:SharedMemory<Float>;
     private final scheduler:Scheduler;
-    private final memoryGameState:GameState;
+    private final memoryGameState:SharedMemoryGameState;
     private final stateChangeListener:GameStateChangeListener;
     
-    public function new(sharedMemory:SharedPluginMemory, scheduler, memoryGameState, gameStateChangeListener) {
+    public function new(floatMemory:SharedMemory<Float>, scheduler, memoryGameState, gameStateChangeListener) {
         this.scheduler = scheduler;
-        boolMemory = sharedMemory.getBoolMemory();
-        floatMemory = sharedMemory.getFloatMemory();
+        this.floatMemory = floatMemory;
         this.memoryGameState = memoryGameState;
         this.stateChangeListener = gameStateChangeListener;
-
-        this.stateChangeListener.setBoolChangeHandler(StateKey.PAUSED, boolMemory, pauseToggle);
-
-        this.memoryGameState.setBool(StateKey.PAUSED, true);
     }
 
-    private function pauseToggle(wasPaused:Null<Bool>, isPaused:Null<Bool>) {
-        Debugger.log('Pause toggled. Paused was: $wasPaused, paused is: $isPaused');
+    public function start() {
+        Debugger.log("Starting " + memoryGameState.getName() + "'s clock");
 
-        if(isPaused != null && !isPaused && (wasPaused == null || wasPaused)){
-            start();
-        }
+        new TickEvent(stateChangeListener, floatMemory, this);
+
+        scheduleNextTick(memoryGameState.getFloat(StateKey.SECONDS_REMAINING));
+    }
+
+    public function stop() {
+        Debugger.log("Stopping " + memoryGameState.getName() + "'s clock");
         
-        if(isPaused == null || isPaused){
-            stop();
-        }
+        new UnhandledTickEvent(stateChangeListener, floatMemory, this);
     }
 
-    private function start() {
-        Debugger.log("Started game");
-
-        stateChangeListener.setFloatChangeHandler(StateKey.SECONDS_REMAINING, floatMemory, tick);
-
-        final secondsRemaining = memoryGameState.getFloat(StateKey.SECONDS_REMAINING);
-        tick(secondsRemaining, secondsRemaining);
-    }
-
-    private function stop() {
-        Debugger.log("Stopped game");
-        
-        stateChangeListener.setFloatChangeHandler(StateKey.SECONDS_REMAINING, floatMemory);
-    }
-
-    private function tick(previousSecondsRemaining:Float, currentSecondsRemaining:Float) {
-        Debugger.log("Ticking");
-
+    public function scheduleNextTick(currentSecondsRemaining:Float) {
         final secondsBetweenTicks = memoryGameState.getFloat(StateKey.SECONDS_BETWEEN_TICKS);
 
-        // Retriggers itself if the game is not paused
         scheduler.executeAfterSeconds(
             secondsBetweenTicks,
             () -> {

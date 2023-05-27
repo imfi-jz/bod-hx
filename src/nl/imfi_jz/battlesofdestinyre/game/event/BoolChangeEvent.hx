@@ -7,10 +7,11 @@ import nl.imfi_jz.battlesofdestinyre.state.listener.GameStateChangeListener;
 abstract class BoolChangeEvent extends StateChangeEvent<Bool> {
     
     public function new(
-        gameStateChangeListener:GameStateChangeListener,
         stateKey:StateKey,
-        sharedMemory:SharedMemory<Bool>
+        sharedMemory:SharedMemory<Bool>,
+        gameStateChangeListener:GameStateChangeListener
     ) {
+        super();
         gameStateChangeListener.setBoolChangeHandler(stateKey, sharedMemory, handle);
     }
 }

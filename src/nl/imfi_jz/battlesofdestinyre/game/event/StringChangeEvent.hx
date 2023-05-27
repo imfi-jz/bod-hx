@@ -7,10 +7,11 @@ import nl.imfi_jz.battlesofdestinyre.state.listener.GameStateChangeListener;
 abstract class StringChangeEvent extends StateChangeEvent<String> {
     
     public function new(
-        gameStateChangeListener:GameStateChangeListener,
         stateKey:StateKey,
-        sharedMemory:SharedMemory<String>
+        sharedMemory:SharedMemory<String>,
+        gameStateChangeListener:GameStateChangeListener
     ) {
+        super();
         gameStateChangeListener.setStringChangeHandler(stateKey, sharedMemory, handle);
     }
 }
