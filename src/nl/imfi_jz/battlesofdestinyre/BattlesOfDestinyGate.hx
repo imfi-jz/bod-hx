@@ -21,11 +21,9 @@ class BattlesOfDestinyGate implements Gate {
         plugin.getRegisterer().registerCommand(new CreateGameCommand(plugin));
         plugin.getRegisterer().registerCommand(new SetGamePropertyCommand(
             plugin.getSharedPluginMemory(),
-            plugin.getNameCapitals().toLowerCase()
+            plugin.getNameCapitals().toLowerCase(),
         ));
-        plugin.getRegisterer().registerCommand(new JoinGameCommand(
-            plugin.getSharedPluginMemory().getObjectMemory()
-        ));
+        plugin.getRegisterer().registerCommand(new JoinGameCommand(plugin));
     }
 
 	public function disable(plugin:Plugin) {

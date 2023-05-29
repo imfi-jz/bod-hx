@@ -12,7 +12,10 @@ abstract StateKey(Array<String>) from Array<String> to Array<String> {
     }
 
     public static inline function allKeys():Array<StateKey> {
-        return boolKeys().concat(intKeys()).concat(stringKeys());
+        return boolKeys()
+            .concat(stringKeys())
+            .concat(stringArrayKeys())
+            .concat(floatKeys());
     }
 
     public static inline function boolKeys():Array<StateKey> {
@@ -22,16 +25,10 @@ abstract StateKey(Array<String>) from Array<String> to Array<String> {
         ];
     }
     
-    public static inline function intKeys():Array<StateKey> {
+    public static inline function floatKeys():Array<StateKey> {
         return [
             SECONDS_REMAINING,
             SECONDS_BETWEEN_TICKS,
-        ];
-    }
-    
-    public static inline function floatKeys():Array<StateKey> {
-        return [
-            
         ];
     }
 

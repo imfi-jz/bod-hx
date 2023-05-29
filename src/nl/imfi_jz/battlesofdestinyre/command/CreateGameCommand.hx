@@ -24,7 +24,7 @@ class CreateGameCommand implements Command {
 	}
 
     private inline function getNameArgument(arguments:StandardCollection<String>):String {
-        return arguments.join(" ");
+        return arguments[0];
     }
 
     private inline function namePassesConstraints(gameName:String):Bool {
@@ -51,7 +51,7 @@ class CreateGameCommand implements Command {
     private function issuesReported(arguments:StandardCollection<String>, ?executor:MessageReceiver):Bool {
         final gameName = getNameArgument(arguments);
         if(!namePassesConstraints(gameName)){
-            executor?.tell("Please specify a name for the game (max 20 characters)");
+            executor?.tell("Please specify a name for the game (max 20 characters, no spaces)");
             return true;
         }
         else if(gameNameExists(gameName)){

@@ -60,7 +60,9 @@ class GameLoader {
             plugin
         );
 
-        memoryGameState.setBool(StateKey.PAUSED, true);
+        if(!memoryGameState.getBool(StateKey.PAUSED)){
+            memoryGameState.setBool(StateKey.PAUSED, true);
+        }
     }
 
     private function addTrackabilityForGame(
@@ -107,8 +109,7 @@ class GameLoader {
             key.toString(SharedMemoryGameState.SHARED_MEMORY_KEY_SEPARATOR)
         ));
 
-        final floatKeys:Multitude<StateKey> = fileGameState.getAllFloatStateKeysPresent()
-            .concat(StateKey.floatKeys().concat(StateKey.intKeys()));
+        final floatKeys:Multitude<StateKey> = fileGameState.getAllFloatStateKeysPresent().concat(StateKey.floatKeys());
         floatKeys.each((key) -> sharedPluginMemory.getStringMemory().setValue(
             memoryGameState.getPrefixedSharedMemoryKey(['trackfloat']),
             key.toString(SharedMemoryGameState.SHARED_MEMORY_KEY_SEPARATOR)
