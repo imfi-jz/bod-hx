@@ -16,9 +16,6 @@ import nl.imfi_jz.minecraft_api.Gate.Plugin;
 class GameLoader {
     public static inline final STATE_FOLDER_NAME = "games";
     private static inline final STATE_FILE_EXTENSION = ".yml";
-
-    private static final INITIALIZED_GAMES_MEMORY_KEY = ['games'];
-    private static final LAST_GAME_ADDED_MEMORY_KEY = ['lastgameadded'];
     
     public inline function new() {
         
@@ -37,7 +34,7 @@ class GameLoader {
         else return [];
     }
 
-    public function initializeGame(fileGameState:FileGameState, plugin:Plugin):Void {
+    public function initializeGame(fileGameState:FileGameState, plugin:Plugin):InitializedGame {
         final stateName = fileGameState.getName();
         final sharedPluginMemory = plugin.getSharedPluginMemory();
         final memoryGameState = new SharedMemoryGameState(stateName, sharedPluginMemory);
@@ -63,6 +60,13 @@ class GameLoader {
         if(!memoryGameState.getBool(StateKey.PAUSED)){
             memoryGameState.setBool(StateKey.PAUSED, true);
         }
+
+        return new InitializedGame(
+            stateName,
+            fileGameState,
+            memoryGameState,
+            stateChangeListener
+        );
     }
 
     private function addTrackabilityForGame(
@@ -129,34 +133,34 @@ class GameLoader {
     }
 
 	private function registerGameName(stateName:String, objectMemory:SharedMemory<Dynamic>, stringMemory:SharedMemory<String>) {
-        final registeredGames:Array<String> = objectMemory.getValue(SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, INITIALIZED_GAMES_MEMORY_KEY));
+        final registeredGames:Array<String> = objectMemory.getValue(SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, GeneralMemoryKey.INITIALIZED_GAMES_MEMORY_KEY));
 
         if(registeredGames == null){
             objectMemory.setValue(
-                SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, INITIALIZED_GAMES_MEMORY_KEY),
+                SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, GeneralMemoryKey.INITIALIZED_GAMES_MEMORY_KEY),
                 [stateName]
             );
         }
         else objectMemory.setValue(
-            SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, INITIALIZED_GAMES_MEMORY_KEY),
+            SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, GeneralMemoryKey.INITIALIZED_GAMES_MEMORY_KEY),
             registeredGames.concat([stateName])
         );
 
         stringMemory.setValue(
-            SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, LAST_GAME_ADDED_MEMORY_KEY),
+            SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, GeneralMemoryKey.LAST_GAME_ADDED_MEMORY_KEY),
             stateName
         );
 	}
 
     public inline function gameWithNameExists(gameName:String, objectMemory:SharedMemory<Dynamic>):Bool {
         return objectMemory.getValue(
-            SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, GameLoader.INITIALIZED_GAMES_MEMORY_KEY)
-        )?.contains(gameName);
+            SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, GeneralMemoryKey.INITIALIZED_GAMES_MEMORY_KEY)
+        )?.contains(gameName) == true;
     }
 
     public inline function getNameOfLastGameAdded(stringMemory:SharedMemory<String>):String {
         return stringMemory.getValue(
-            SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, GameLoader.LAST_GAME_ADDED_MEMORY_KEY)
+            SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, GeneralMemoryKey.LAST_GAME_ADDED_MEMORY_KEY)
         );   
     }
 }

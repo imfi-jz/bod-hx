@@ -9,8 +9,8 @@ import nl.imfi_jz.functional.collection.Collection.Multitude;
 import nl.imfi_jz.minecraft_api.World;
 import nl.imfi_jz.battlesofdestinyre.state.SharedMemoryGameState;
 
+// TODO refactor the static functions?
 class Team {
-    
 	private final memoryGameState:SharedMemoryGameState;
     private final gameStateChangeListener:GameStateChangeListener;
     private final stringMemory:SharedMemory<String>;

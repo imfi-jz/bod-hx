@@ -16,14 +16,19 @@ class BattlesOfDestinyGate implements Gate {
         Debugger.log("Debugger enabled");
 
         final gameLoader = new GameLoader();
-        gameLoader.getExistingGamesAsFileStates(plugin).each((state) -> gameLoader.initializeGame(state, plugin));
+        final initializedGames = gameLoader.getExistingGamesAsFileStates(plugin)
+            .map((state) -> gameLoader.initializeGame(state, plugin));
 
         plugin.getRegisterer().registerCommand(new CreateGameCommand(plugin));
         plugin.getRegisterer().registerCommand(new SetGamePropertyCommand(
             plugin.getSharedPluginMemory(),
             plugin.getNameCapitals().toLowerCase(),
+            initializedGames
         ));
-        plugin.getRegisterer().registerCommand(new JoinGameCommand(plugin));
+        plugin.getRegisterer().registerCommand(new JoinGameCommand(
+            plugin,
+            initializedGames,
+        ));
     }
 
 	public function disable(plugin:Plugin) {

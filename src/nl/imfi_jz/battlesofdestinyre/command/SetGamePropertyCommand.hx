@@ -1,5 +1,6 @@
 package nl.imfi_jz.battlesofdestinyre.command;
 
+import nl.imfi_jz.battlesofdestinyre.game.InitializedGame;
 import nl.imfi_jz.battlesofdestinyre.state.listener.GameStateChangeListener;
 import nl.imfi_jz.battlesofdestinyre.game.GameLoader;
 import nl.imfi_jz.minecraft_api.implementation.Debugger;
@@ -19,10 +20,18 @@ class SetGamePropertyCommand implements Command {
 
     private final sharedMemory:SharedPluginMemory;
     private final pluginNameCapitalLower:String;
+    private final gameStateChangeListenersByName:Map<String, GameStateChangeListener>;
 
-    public function new(sharedMemory, pluginNameCapitalLower) {
+    public function new(sharedMemory, pluginNameCapitalLower, initializedGames:Multitude<InitializedGame>) {
         this.sharedMemory = sharedMemory;
         this.pluginNameCapitalLower = pluginNameCapitalLower;
+        this.gameStateChangeListenersByName = initializedGames.reduce(
+            new Map<String, GameStateChangeListener>(),
+            (gameStateChangeListenersByName, initializedGame) -> {
+                gameStateChangeListenersByName[initializedGame.getName()] = initializedGame.getGameStateChangeListener();
+                return gameStateChangeListenersByName;
+            }
+        );
     }
     
 	public function getName():String {
@@ -41,28 +50,30 @@ class SetGamePropertyCommand implements Command {
     private function usagesReported(parsedArguments:StandardCollection<String>, ?executor:MessageReceiver):Bool {
         final usageArguments = '"<game name>.<state key>" "<value>"';
         final usage = 'Usage: /hxp $pluginNameCapitalLower set $usageArguments';
-        final gameName = getGameNameArgument(parsedArguments);
         if(!currectNumberOfArguments(parsedArguments)){
             executor?.tell('Invalid number of arguments. $usage');
             return true;
         }
-        else if(getStateKeyArgument(parsedArguments).length <= 0){
-            executor?.tell('No state key was given. $usage');
-            return true;
+        else {
+            final gameName = getGameNameArgument(parsedArguments);
+            if(!gameExists(gameName)) {
+                executor?.tell('No game found with name "$gameName". $usage');
+                return true;
+            }
+            else if(getStateKeyArgument(parsedArguments).length <= 0){
+                executor?.tell('No state key was given. $usage');
+                return true;
+            }
+            else if(getValueArgument(parsedArguments).length <= 0){
+                executor?.tell('No value was given. $usage');
+                return true;
+            }
+            else if(!isValidStateKey(getStateKeyArgument(parsedArguments), gameName)) {
+                executor?.tell('Invalid state key. To set custom state keys, use: /hxp $pluginNameCapitalLower setcustom $usageArguments');
+                return true;
+            }
+            else return false;
         }
-        else if(getValueArgument(parsedArguments).length <= 0){
-            executor?.tell('No value was given. $usage');
-            return true;
-        }
-        else if(!isValidStateKey(getStateKeyArgument(parsedArguments), gameName)) {
-            executor?.tell('Invalid state key. To set custom state keys, use: /hxp $pluginNameCapitalLower setcustom $usageArguments');
-            return true;
-        }
-        else if(!gameExists(gameName)) {
-            executor?.tell('No game found with name "$gameName". $usage');
-            return true;
-        }
-        else return false;
     }
 
     private function reportSuccess(executor:MessageReceiver) {
@@ -124,7 +135,7 @@ class SetGamePropertyCommand implements Command {
 
     private function isValidStateKey(stateKey:String, gameName:String):Bool {
         final keys:Multitude<StateKey> = StateKey.allKeys()
-            .concat(GameStateChangeListener.getTrackedKeys(gameName, sharedMemory.getObjectMemory()));
+            .concat(gameStateChangeListenersByName[gameName].getTrackedKeys(sharedMemory.getObjectMemory()));
 
         return keys.reduce(false, (valid, key) -> {
             return valid || key.toString(SharedMemoryGameState.SHARED_MEMORY_KEY_SEPARATOR) == stateKey;

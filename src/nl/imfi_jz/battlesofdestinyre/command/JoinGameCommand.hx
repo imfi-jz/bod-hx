@@ -1,10 +1,9 @@
 package nl.imfi_jz.battlesofdestinyre.command;
 
+import nl.imfi_jz.functional.collection.Collection.Multitude;
+import nl.imfi_jz.battlesofdestinyre.game.InitializedGame;
 import nl.imfi_jz.minecraft_api.Gate.SharedMemory;
 import nl.imfi_jz.minecraft_api.Gate.Plugin;
-import nl.imfi_jz.battlesofdestinyre.state.listener.GameStateChangeListener;
-import nl.imfi_jz.battlesofdestinyre.state.GameStateFactory;
-import nl.imfi_jz.battlesofdestinyre.state.SharedMemoryGameState;
 import nl.imfi_jz.battlesofdestinyre.game.Team;
 import nl.imfi_jz.battlesofdestinyre.game.GameLoader;
 import nl.imfi_jz.minecraft_api.MessageReceiver;
@@ -17,10 +16,18 @@ class JoinGameCommand implements Command {
 
 	private final plugin:Plugin;
 	private final objectMemory:SharedMemory<Dynamic>;
+	private final initializedGamesByName:Map<String, InitializedGame>;
 
-    public function new(plugin:Plugin) {
+    public function new(plugin:Plugin, initializedGames:Multitude<InitializedGame>) {
 		this.plugin = plugin;
 		this.objectMemory = plugin.getSharedPluginMemory().getObjectMemory();
+		this.initializedGamesByName = initializedGames.reduce(
+			new Map<String, InitializedGame>(),
+			(initializedGamesByName, initializedGame) -> {
+				initializedGamesByName[initializedGame.getName()] = initializedGame;
+				return initializedGamesByName;
+			}
+		);
     }
 
 	public function getName():String {
@@ -43,6 +50,7 @@ class JoinGameCommand implements Command {
 			executor.tell('No game with name $gameName exists');
 			return true;
 		}
+		// TODO: Check if player is already in a game
 		else return false;
 	}
 
@@ -63,23 +71,21 @@ class JoinGameCommand implements Command {
 	public function executeByPlayer(executor:Player, arguments:StandardCollection<String>) {
 		if(!issuesReported(executor, arguments)){
 			final gameName = getGameNameArgument(arguments);
-			final gameStateChangeListener = new GameStateChangeListener(new GameStateFactory().createGameState(gameName, plugin), objectMemory);
-			final memoryGameState = new SharedMemoryGameState(gameName, plugin.getSharedPluginMemory());
 			final stringMemory = plugin.getSharedPluginMemory().getStringMemory();
 			final existingTeams = Team.getTeamsPresetInGame(
 				gameName,
 				plugin.getGame(),
-				memoryGameState,
+				initializedGamesByName[gameName].getMemoryGameState(),
 				stringMemory,
-				gameStateChangeListener
+				initializedGamesByName[gameName].getGameStateChangeListener()
 			);
 
 			final team = existingTeams.any()
 				? existingTeams.first().value
 				: Team.generate(
-					memoryGameState,
+					initializedGamesByName[gameName].getMemoryGameState(),
 					stringMemory,
-					gameStateChangeListener
+					initializedGamesByName[gameName].getGameStateChangeListener()
 				);
 
 			team.addPlayer(executor.getName());

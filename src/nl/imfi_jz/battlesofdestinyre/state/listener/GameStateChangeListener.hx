@@ -3,19 +3,17 @@ package nl.imfi_jz.battlesofdestinyre.state.listener;
 import nl.imfi_jz.minecraft_api.Gate.SharedMemory;
 
 class GameStateChangeListener {
-    private static final TRACKED_KEYS_MEMORY_KEY = ['keys'];
-
-    private final persistentGameState:GameState;
+    private final fileGameState:GameState;
     private final objectMemory:SharedMemory<Dynamic>;
 
-    public function new(fileGameState, objectMemory) {
-        this.persistentGameState = fileGameState;
+    public function new(fileGameState:FileGameState, objectMemory) {
+        this.fileGameState = fileGameState;
         this.objectMemory = objectMemory;
     }
 
     private function handle<T>(sharedMemory:SharedMemory<T>, key:StateKey, persistFunction:(newValue:T)->Void, handler:(previousValue:T, newValue:T)->Void):Void {
         sharedMemory.valueChanged(
-            SharedMemoryGameState.getAPrefixedSharedMemoryKey(persistentGameState.getName(), key),
+            SharedMemoryGameState.getAPrefixedSharedMemoryKey(fileGameState.getName(), key),
             (previousValue, newValue) -> {
                 persistFunction(newValue);
 
@@ -29,24 +27,24 @@ class GameStateChangeListener {
     }
 
     public function setBoolChangeHandler(key:StateKey, sharedMemory:SharedMemory<Bool>, ?handler:(previousValue:Bool, newValue:Bool)->Void):Void {
-        handle(sharedMemory, key, (newValue) -> persistentGameState.setBool(key, newValue), handler);
+        handle(sharedMemory, key, (newValue) -> fileGameState.setBool(key, newValue), handler);
     }
 
     public function setFloatChangeHandler(key:StateKey, sharedMemory:SharedMemory<Float>, ?handler:(previousValue:Float, newValue:Float)->Void):Void {
-        handle(sharedMemory, key, (newValue) -> persistentGameState.setFloat(key, newValue), handler);
+        handle(sharedMemory, key, (newValue) -> fileGameState.setFloat(key, newValue), handler);
     }
 
     public function setStringChangeHandler(key:StateKey, sharedMemory:SharedMemory<String>, ?handler:(previousValue:String, newValue:String)->Void):Void {
-        handle(sharedMemory, key, (newValue) -> persistentGameState.setString(key, newValue), handler);
+        handle(sharedMemory, key, (newValue) -> fileGameState.setString(key, newValue), handler);
     }
 
     public function setStringArrayChangeHandler(key:StateKey, sharedMemory:SharedMemory<Dynamic>, ?handler:(previousValue:Dynamic, newValue:Dynamic)->Void):Void {
-        handle(sharedMemory, key, (newValue) -> persistentGameState.setStringArray(key, newValue), handler);
+        handle(sharedMemory, key, (newValue) -> fileGameState.setStringArray(key, newValue), handler);
     }
 
     private function addKeyToTrackedKeys(key:String) {
-        final gameTrackedKeysKey = TRACKED_KEYS_MEMORY_KEY.concat([persistentGameState.getName()]);
-        final existingTrackedKeys:Array<String> = getTrackedKeys(persistentGameState.getName(), objectMemory)
+        final gameTrackedKeysKey = GeneralMemoryKey.TRACKED_KEYS_MEMORY_KEY.concat([fileGameState.getName()]);
+        final existingTrackedKeys:Array<String> = getTrackedKeys(objectMemory)
             .map((trackedKey) -> trackedKey.join(SharedMemoryGameState.SHARED_MEMORY_KEY_SEPARATOR));
 
         if(!existingTrackedKeys.contains(key)){
@@ -56,9 +54,9 @@ class GameStateChangeListener {
             );
         }
     }
-
-    public static function getTrackedKeys(gameName:String, objectMemory:SharedMemory<Dynamic>):Array<Array<String>> {
-        final gameTrackedKeysKey = TRACKED_KEYS_MEMORY_KEY.concat([gameName]);
+    
+    public function getTrackedKeys(objectMemory:SharedMemory<Dynamic>):Array<Array<String>> {
+        final gameTrackedKeysKey = GeneralMemoryKey.TRACKED_KEYS_MEMORY_KEY.concat([fileGameState.getName()]);
         final existingTrackedKeys:Array<String> = objectMemory.getValue(
             SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, gameTrackedKeysKey)
         );

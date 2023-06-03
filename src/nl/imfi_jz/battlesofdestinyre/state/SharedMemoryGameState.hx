@@ -7,7 +7,7 @@ class SharedMemoryGameState implements GameState {
 
     private static inline final SHARED_MEMORY_KEY_PREFIX = 'bod';
     private static inline final SHARED_MEMORY_GAME_KEY_PREFIX = 'game';
-	public static inline final SHARED_MEMORY_KEY_SEPARATOR:String = '.';
+	public static inline final SHARED_MEMORY_KEY_SEPARATOR = '.';
 
 	private final stringMemory:SharedMemory<String>;
 	private final floatMemory:SharedMemory<Float>;
