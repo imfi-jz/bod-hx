@@ -25,7 +25,7 @@ class GameStateChangeListener {
             }
         );
 
-        addKeyToTrackedKeys(key.toString(SharedMemoryGameState.SHARED_MEMORY_KEY_SEPARATOR), persistentGameState.getName());
+        addKeyToTrackedKeys(key.toString(SharedMemoryGameState.SHARED_MEMORY_KEY_SEPARATOR));
     }
 
     public function setBoolChangeHandler(key:StateKey, sharedMemory:SharedMemory<Bool>, ?handler:(previousValue:Bool, newValue:Bool)->Void):Void {
@@ -44,23 +44,28 @@ class GameStateChangeListener {
         handle(sharedMemory, key, (newValue) -> persistentGameState.setStringArray(key, newValue), handler);
     }
 
-    private function addKeyToTrackedKeys(key:String, gameName:String) {
+    private function addKeyToTrackedKeys(key:String) {
+        final gameTrackedKeysKey = TRACKED_KEYS_MEMORY_KEY.concat([persistentGameState.getName()]);
+        final existingTrackedKeys:Array<String> = getTrackedKeys(persistentGameState.getName(), objectMemory)
+            .map((trackedKey) -> trackedKey.join(SharedMemoryGameState.SHARED_MEMORY_KEY_SEPARATOR));
+
+        if(!existingTrackedKeys.contains(key)){
+            objectMemory.setValue(
+                SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, gameTrackedKeysKey),
+                existingTrackedKeys.concat([key])
+            );
+        }
+    }
+
+    public static function getTrackedKeys(gameName:String, objectMemory:SharedMemory<Dynamic>):Array<Array<String>> {
         final gameTrackedKeysKey = TRACKED_KEYS_MEMORY_KEY.concat([gameName]);
         final existingTrackedKeys:Array<String> = objectMemory.getValue(
             SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, gameTrackedKeysKey)
         );
 
         if(existingTrackedKeys == null){
-            objectMemory.setValue(
-                SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, gameTrackedKeysKey),
-                [key]
-            );
+            return [];
         }
-        else if(!existingTrackedKeys.contains(key)){
-            objectMemory.setValue(
-                SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, gameTrackedKeysKey),
-                existingTrackedKeys.concat([key])
-            );
-        }
+        else return existingTrackedKeys.map((key) -> key.split(SharedMemoryGameState.SHARED_MEMORY_KEY_SEPARATOR));
     }
 }

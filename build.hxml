@@ -6,6 +6,7 @@ nl.imfi_jz.battlesofdestinyre
 
 --dce full
 -D mc_debug
+-D no_functional_inline
 
 --cmd del BattlesOfDestinyHx.jar
 --cmd rename HxMcPlugin.jar BattlesOfDestinyHx.jar
