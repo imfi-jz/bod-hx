@@ -1,0 +1,10 @@
+Team rules:
+    Max players
+    Min players
+    Max teams
+    Min teams
+
+Player participation rules:
+    (important) Player.name.Stage since offline: (stage name)
+    Seconds to pause for player going offline
+    Lives removed upon leave
