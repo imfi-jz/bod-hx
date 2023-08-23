@@ -8,3 +8,29 @@ Player participation rules:
     (important) Player.name.Stage since offline: (stage name)
     Seconds to pause for player going offline
     Lives removed upon leave
+
+Stage data/options:
+    Seconds remaining
+    Next stage
+    Objective
+    Commands to execute upon stage start (string array)
+
+Elimination game mode stages:
+    Team selection
+        Options: duration, team rules.
+    Scouting (start location selection)
+        Options: duration, pvp (off), player game mode (adventure), teleport players (to center of game), allow start location setting (on), minimum distance between start locations.
+    Shopping
+        Options: duration, limit teams to start area (num), allow opening shop, give players item (currency), allow start location setting (off).
+    Preparation (limited to a small area around the start location)
+        Options: duration, player game mode (survival), allow opening shop (off), pvp (on).
+    Battle (battle royale) (players that died / ran out of lives can spectate team members or other players)
+        Options: duration, limit teams to start area (off), battle area shrink per tick (num), set player lives (num), damage done = score (team damage lowers) (on).
+    Outcome (a few seconds)
+        Options: duration, damage done = score (off), save scores (to global scores file?).
+    (game ends, players are reset to their state before the game)
+
+(Total) Score storage:
+    Player name
+        Score
+        Games won

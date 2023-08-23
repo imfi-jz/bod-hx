@@ -24,7 +24,7 @@ class Clock {
     public function start() {
         Debugger.log("Starting " + memoryGameState.getName() + "'s clock");
 
-        new TickEvent(stateChangeListener, floatMemory, this);
+        new TickEvent(stateChangeListener, floatMemory, this, memoryGameState);
 
         scheduleNextTick(memoryGameState.getFloat(StateKey.SECONDS_REMAINING));
     }
@@ -32,7 +32,7 @@ class Clock {
     public function stop() {
         Debugger.log("Stopping " + memoryGameState.getName() + "'s clock");
         
-        new UnhandledTickEvent(stateChangeListener, floatMemory, this);
+        new UnhandledTickEvent(stateChangeListener, floatMemory);
     }
 
     public function scheduleNextTick(currentSecondsRemaining:Float) {
