@@ -11,7 +11,7 @@ class GameStateChangeListener {
         this.objectMemory = objectMemory;
     }
 
-    private function handle<T>(sharedMemory:SharedMemory<T>, key:StateKey, persistFunction:(newValue:T)->Void, handler:(previousValue:T, newValue:T)->Void):Void {
+    private function handle<T>(sharedMemory:SharedMemory<T>, key:StateKey, persistFunction:(newValue:Null<T>)->Void, handler:(previousValue:Null<T>, newValue:Null<T>)->Void):Void {
         sharedMemory.valueChanged(
             SharedMemoryGameState.getAPrefixedSharedMemoryKey(fileGameState.getName(), key),
             (previousValue, newValue) -> {
@@ -26,11 +26,11 @@ class GameStateChangeListener {
         addKeyToTrackedKeys(key.toString(SharedMemoryGameState.SHARED_MEMORY_KEY_SEPARATOR));
     }
 
-    public function setBoolChangeHandler(key:StateKey, sharedMemory:SharedMemory<Bool>, ?handler:(previousValue:Bool, newValue:Bool)->Void):Void {
+    public function setBoolChangeHandler(key:StateKey, sharedMemory:SharedMemory<Bool>, ?handler:(previousValue:Null<Bool>, newValue:Null<Bool>)->Void):Void {
         handle(sharedMemory, key, (newValue) -> fileGameState.setBool(key, newValue), handler);
     }
 
-    public function setFloatChangeHandler(key:StateKey, sharedMemory:SharedMemory<Float>, ?handler:(previousValue:Float, newValue:Float)->Void):Void {
+    public function setFloatChangeHandler(key:StateKey, sharedMemory:SharedMemory<Float>, ?handler:(previousValue:Null<Float>, newValue:Null<Float>)->Void):Void {
         handle(sharedMemory, key, (newValue) -> fileGameState.setFloat(key, newValue), handler);
     }
 

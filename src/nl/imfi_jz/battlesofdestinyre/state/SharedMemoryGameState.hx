@@ -52,19 +52,19 @@ class SharedMemoryGameState implements GameState {
 		stringMemory.setValue(getPrefixedSharedMemoryKey(key), value);
 	}
 
-	public function getFloat(key:StateKey):Float {
+	public function getFloat(key:StateKey):Null<Float> {
 		return floatMemory.getValue(getPrefixedSharedMemoryKey(key));
 	}
 
-	public function setFloat(key:StateKey, value:Float) {
+	public function setFloat(key:StateKey, value:Null<Float>) {
 		floatMemory.setValue(getPrefixedSharedMemoryKey(key), value);
 	}
 
-	public function getBool(key:StateKey):Bool {
+	public function getBool(key:StateKey):Null<Bool> {
 		return boolMemory.getValue(getPrefixedSharedMemoryKey(key));
 	}
 
-	public function setBool(key:StateKey, value:Bool) {
+	public function setBool(key:StateKey, value:Null<Bool>) {
 		boolMemory.setValue(getPrefixedSharedMemoryKey(key), value);
 	}
 

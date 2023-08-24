@@ -19,14 +19,12 @@ class TickEvent extends FloatChangeEvent {
 	private function handle(previousSecondsRemaining:Null<Float>, currentSecondsRemaining:Null<Float>) {
         Debugger.log("Ticking");
 
-        if(currentSecondsRemaining != null){
-            if(currentSecondsRemaining > 0){
-                clock.scheduleNextTick(currentSecondsRemaining);
-            }
-            else {
-                Debugger.log("Stage time is up. Should switch stage");
-                switchToNextStage();
-            }
+        if(currentSecondsRemaining == null || currentSecondsRemaining > 0){
+            clock.scheduleNextTick(currentSecondsRemaining);
+        }
+        else if(currentSecondsRemaining != null && currentSecondsRemaining <= 0){
+            Debugger.log("Stage time is up. Should switch stage");
+            switchToNextStage();
         }
     }
 

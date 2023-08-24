@@ -15,9 +15,11 @@ Stage data/options:
     Objective
     Commands to execute upon stage start (string array)
 
+Stage names should have no effect on any behavior.
+
 Elimination game mode stages:
     Team selection
-        Options: duration, team rules.
+        Options: duration, team rules, seconds remaining when team conditions are met.
     Scouting (start location selection)
         Options: duration, pvp (off), player game mode (adventure), teleport players (to center of game), allow start location setting (on), minimum distance between start locations.
     Shopping

@@ -22,12 +22,19 @@ class FileGameState implements GameState {
 		file.setValueByNestedKey(key, value);
 	}
 
-	public function getFloat(key:StateKey):Float {
-		return Std.parseFloat(file.getValueByNestedKey(key));
+	public function getFloat(key:StateKey):Null<Float> {
+		final value = file.getValueByNestedKey(key);
+		if(value == null){
+			return null;
+		}
+		else return Std.parseFloat(value);
 	}
 
-	public function setFloat(key:StateKey, value:Float) {
-		if(value == cast(value, Int)){
+	public function setFloat(key:StateKey, value:Null<Float>) {
+		if(value == null){
+			file.setValueByNestedKey(key, null);
+		}
+		else if(value == cast(value, Int)){
 			Debugger.log('Saving float as int: $value');
 			file.setValueByNestedKey(key, Std.int(value));
 		}
@@ -36,11 +43,11 @@ class FileGameState implements GameState {
 		}
 	}
 
-	public function getBool(key:StateKey):Bool {
+	public function getBool(key:StateKey):Null<Bool> {
 		return file.getValueByNestedKey(key);
 	}
 
-	public function setBool(key:StateKey, value:Bool) {
+	public function setBool(key:StateKey, value:Null<Bool>) {
 		file.setValueByNestedKey(key, value);
 	}
 

@@ -37,15 +37,20 @@ class Clock {
         new UnhandledTickEvent(eventData, stageName);
     }
 
-    public function scheduleNextTick(currentSecondsRemaining:Float) {
+    public function scheduleNextTick(currentSecondsRemaining:Null<Float>) {
         final secondsBetweenTicks = eventData.memoryGameState.getFloat(StateKey.SECONDS_PER_TICK);
 
-        scheduler.executeAfterSeconds(
+        if(secondsBetweenTicks == null || secondsBetweenTicks <= 0){
+            Debugger.warn(Std.string(StateKey.SECONDS_PER_TICK) + ' is $secondsBetweenTicks, can\'t schedule next tick');
+        }
+        else scheduler.executeAfterSeconds(
             secondsBetweenTicks,
             () -> {
                 eventData.memoryGameState.setFloat(
                     StateKey.stageSecondsRemaining(stageName),
-                    currentSecondsRemaining - secondsBetweenTicks
+                    currentSecondsRemaining == null
+                        ? null
+                        : currentSecondsRemaining - secondsBetweenTicks
                 );
             }
         );
