@@ -1,21 +1,30 @@
 package nl.imfi_jz.battlesofdestinyre.game.event;
 
-import nl.imfi_jz.battlesofdestinyre.state.listener.GameStateChangeListener;
-import nl.imfi_jz.minecraft_api.Gate.SharedMemory;
+import nl.imfi_jz.minecraft_api.Gate.Scheduler;
 import nl.imfi_jz.battlesofdestinyre.state.StateKey;
-import nl.imfi_jz.battlesofdestinyre.state.SharedMemoryGameState;
 
-// TODO: Remove?
 class StageChangeEvent extends StringChangeEvent {
-    private final memoryGameState:SharedMemoryGameState;
+    private final eventData:CommonGameEventData;
+    private final scheduler:Scheduler;
     
-    public function new(stringMemory:SharedMemory<String>, gameStateChangeListener:GameStateChangeListener, memoryGameState:SharedMemoryGameState) {
-        super(StateKey.STAGE, stringMemory, gameStateChangeListener);
+    public function new(eventData:CommonGameEventData, scheduler) {
+        super(StateKey.STAGE, eventData.sharedMemory.getStringMemory(), eventData.gameStateChangeListener);
 
-        this.memoryGameState = memoryGameState;
+        this.eventData = eventData;
+        this.scheduler = scheduler;
     }
 
 	function handle(previousValue:Null<String>, newValue:Null<String>) {
+        final clock = new Clock(
+            eventData,
+            scheduler,
+            newValue
+        );
 
+        new PauseEvent(eventData, clock);
+
+        if (!eventData.memoryGameState.getBool(StateKey.PAUSED)) {
+            clock.start();
+        }
     }
 }

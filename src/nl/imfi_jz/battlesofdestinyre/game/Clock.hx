@@ -1,48 +1,50 @@
 package nl.imfi_jz.battlesofdestinyre.game;
 
+import nl.imfi_jz.battlesofdestinyre.game.event.CommonGameEventData;
 import nl.imfi_jz.battlesofdestinyre.state.StateKey;
-import nl.imfi_jz.battlesofdestinyre.state.SharedMemoryGameState;
 import nl.imfi_jz.battlesofdestinyre.game.event.TickEvent;
-import nl.imfi_jz.battlesofdestinyre.state.listener.GameStateChangeListener;
 import nl.imfi_jz.minecraft_api.implementation.Debugger;
 import nl.imfi_jz.minecraft_api.Gate.Scheduler;
-import nl.imfi_jz.minecraft_api.Gate.SharedMemory;
 
 class Clock {
-    private final floatMemory:SharedMemory<Float>;
+    private final eventData:CommonGameEventData;
     private final scheduler:Scheduler;
-    private final memoryGameState:SharedMemoryGameState;
-    private final stateChangeListener:GameStateChangeListener;
+    private final stageName:String;
     
-    public function new(floatMemory:SharedMemory<Float>, scheduler, memoryGameState, gameStateChangeListener) {
+    public function new(eventData, scheduler, stageName) {
+        this.eventData = eventData;
         this.scheduler = scheduler;
-        this.floatMemory = floatMemory;
-        this.memoryGameState = memoryGameState;
-        this.stateChangeListener = gameStateChangeListener;
+        this.stageName = stageName;
     }
 
     public function start() {
-        Debugger.log("Starting " + memoryGameState.getName() + "'s clock");
+        Debugger.log("Starting " + eventData.memoryGameState.getName() + "'s clock in stage " + stageName);
 
-        new TickEvent(stateChangeListener, floatMemory, this, memoryGameState);
+        if(stageName == null){
+            Debugger.warn("Stage name is null, not starting clock");
+        }
+        else {
+            new TickEvent(eventData, this, stageName);
 
-        scheduleNextTick(memoryGameState.getFloat(StateKey.SECONDS_REMAINING));
+            final currentSecondsRemaining = eventData.memoryGameState.getFloat(StateKey.stageSecondsRemaining(stageName));
+            scheduleNextTick(currentSecondsRemaining);
+        }
     }
 
     public function stop() {
-        Debugger.log("Stopping " + memoryGameState.getName() + "'s clock");
+        Debugger.log("Stopping " + eventData.memoryGameState.getName() + "'s clock in stage " + stageName);
         
-        new UnhandledTickEvent(stateChangeListener, floatMemory);
+        new UnhandledTickEvent(eventData, stageName);
     }
 
     public function scheduleNextTick(currentSecondsRemaining:Float) {
-        final secondsBetweenTicks = memoryGameState.getFloat(StateKey.SECONDS_BETWEEN_TICKS);
+        final secondsBetweenTicks = eventData.memoryGameState.getFloat(StateKey.SECONDS_PER_TICK);
 
         scheduler.executeAfterSeconds(
             secondsBetweenTicks,
             () -> {
-                memoryGameState.setFloat(
-                    StateKey.SECONDS_REMAINING,
+                eventData.memoryGameState.setFloat(
+                    StateKey.stageSecondsRemaining(stageName),
                     currentSecondsRemaining - secondsBetweenTicks
                 );
             }

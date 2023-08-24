@@ -1,5 +1,6 @@
 package nl.imfi_jz.battlesofdestinyre.game.event;
 
+import nl.imfi_jz.battlesofdestinyre.state.StateKey;
 import nl.imfi_jz.minecraft_api.Gate.Plugin;
 import nl.imfi_jz.battlesofdestinyre.state.SharedMemoryGameState;
 import nl.imfi_jz.battlesofdestinyre.state.listener.GameStateChangeListener;
@@ -15,13 +16,17 @@ class EventFactory {
         gameStateChangeListener:GameStateChangeListener,
         plugin:Plugin
     ):Array<StateChangeEvent<Any>> {
-        final boolMemory = plugin.getSharedPluginMemory().getBoolMemory();
-        final floatMemory = plugin.getSharedPluginMemory().getFloatMemory();
+        final eventData = new CommonGameEventData(
+            gameStateChangeListener,
+            plugin.getSharedPluginMemory(),
+            memoryGameState
+        );
         
-        final clock = new Clock(floatMemory, plugin.getScheduler(), memoryGameState, gameStateChangeListener);
+        final clock = new Clock(eventData, plugin.getScheduler(), memoryGameState.getString(StateKey.STAGE));
 
         return [
-            new PauseEvent(gameStateChangeListener, boolMemory, memoryGameState, clock),
+            new PauseEvent(eventData, clock),
+            new StageChangeEvent(eventData, plugin.getScheduler()),
         ];
     }
 }
