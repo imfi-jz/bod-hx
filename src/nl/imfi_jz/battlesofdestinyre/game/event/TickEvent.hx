@@ -5,14 +5,12 @@ import nl.imfi_jz.battlesofdestinyre.state.StateKey;
 
 class TickEvent extends FloatChangeEvent {
     private final clock:Clock;
-    private final eventData:CommonGameEventData;
     private final stageName:String;
 
-    public function new(eventData:CommonGameEventData, clock, stageName) {
-        super(StateKey.stageSecondsRemaining(stageName), eventData.game);
+    public function new(game, clock, stageName) {
+        super(StateKey.stageSecondsRemaining(stageName), game);
         
         this.clock = clock;
-        this.eventData = eventData;
         this.stageName = stageName;
     }
     
@@ -29,7 +27,7 @@ class TickEvent extends FloatChangeEvent {
     }
 
     private function switchToNextStage() {
-        final nextStage = eventData.game.getMemoryGameState().getString(StateKey.stageNextStage(stageName));
+        final nextStage = getInitializedGame().getMemoryGameState().getString(StateKey.stageNextStage(stageName));
 
         clock.stop();
 
@@ -39,7 +37,7 @@ class TickEvent extends FloatChangeEvent {
             // TODO: mark game as finished?
         }
         else {
-            eventData.game.getMemoryGameState().setString(StateKey.STAGE, nextStage);
+            getInitializedGame().getMemoryGameState().setString(StateKey.STAGE, nextStage);
         }
     }
 }

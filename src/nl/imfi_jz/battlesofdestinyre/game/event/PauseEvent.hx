@@ -6,8 +6,8 @@ import nl.imfi_jz.battlesofdestinyre.state.StateKey;
 class PauseEvent extends BoolChangeEvent {
     private final clock:Clock;
 
-    public function new(eventData:CommonGameEventData, clock) {
-        super(StateKey.PAUSED, eventData.game);
+    public function new(game, clock) {
+        super(StateKey.PAUSED, game);
 
         this.clock = clock;
     }

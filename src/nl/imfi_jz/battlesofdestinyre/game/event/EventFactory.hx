@@ -13,16 +13,11 @@ class EventFactory {
         initializedGame:InitializedGame,
         plugin:Plugin
     ):Array<StateChangeEvent<Any>> {
-        final eventData = new CommonGameEventData(
-            initializedGame,
-            plugin.getSharedPluginMemory()
-        );
-        
-        final clock = new Clock(eventData, plugin.getScheduler(), initializedGame.getMemoryGameState().getString(StateKey.STAGE));
+        final clock = new Clock(initializedGame, initializedGame.getMemoryGameState().getString(StateKey.STAGE));
 
         return [
-            new PauseEvent(eventData, clock),
-            new StageChangeEvent(eventData, plugin.getScheduler()),
+            new PauseEvent(initializedGame, clock),
+            new StageChangeEvent(initializedGame),
         ];
     }
 }
