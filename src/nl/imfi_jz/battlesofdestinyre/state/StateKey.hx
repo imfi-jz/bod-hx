@@ -26,6 +26,7 @@ abstract StateKey(Array<String>) from Array<String> to Array<String> {
     private static inline final SECONDS_REMAINING_WHEN_TEAM_CONDITIONS_MET = "Seconds remaining when team conditions met";
     private static inline final TELEPORT_PLAYERS_TO_CENTER = "Teleport players to center";
     private static inline final SET_PLAYER_GAME_MODE = "Set player game mode";
+    private static inline final ALLOW_PVP = "Allow PVP";
 
     public inline function toString(delimiter:String):String {
         return this.join(delimiter);
@@ -93,5 +94,8 @@ abstract StateKey(Array<String>) from Array<String> to Array<String> {
     }
     public static inline function stageSetPlayerGameMode(stageName:String):StateKey {
         return [STAGES, stageName, SET_PLAYER_GAME_MODE];
+    }
+    public static inline function stageAllowPvp(stageName:String):StateKey {
+        return [STAGES, stageName, ALLOW_PVP];
     }
 }

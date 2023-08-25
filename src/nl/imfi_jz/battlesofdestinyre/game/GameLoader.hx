@@ -1,5 +1,6 @@
 package nl.imfi_jz.battlesofdestinyre.game;
 
+import nl.imfi_jz.battlesofdestinyre.event.PlayerDamagePlayerEvent;
 import nl.imfi_jz.battlesofdestinyre.game.event.EventFactory;
 import nl.imfi_jz.battlesofdestinyre.state.listener.GameStateChangeListener;
 import nl.imfi_jz.minecraft_api.Gate.SharedPluginMemory;
@@ -67,6 +68,8 @@ class GameLoader {
         if(!memoryGameState.getBool(StateKey.PAUSED)){
             memoryGameState.setBool(StateKey.PAUSED, true);
         }
+
+        registerSpigotEventsAccosiatedWithGame(initializedGame, plugin);
 
         return initializedGame;
     }
@@ -165,4 +168,8 @@ class GameLoader {
             SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, GeneralMemoryKey.LAST_GAME_ADDED_MEMORY_KEY)
         );   
     }
+    
+	private function registerSpigotEventsAccosiatedWithGame(initializedGame:InitializedGame, plugin:Plugin) {
+        plugin.getRegisterer().registerEvent(new PlayerDamagePlayerEvent(initializedGame));
+	}
 }

@@ -64,4 +64,8 @@ class InitializedGame {
             )]);
         });
     }
+
+    public function getOnlinePlayers():Multitude<Player> {
+        return getTeams().reduce([], (players, team) -> players.concat(team.getOnlinePlayers()));
+    }
 }

@@ -24,13 +24,13 @@ class StageChangeEvent extends StringChangeEvent {
             clock.start();
         }
 
-        final onlinePlayersInATeam = game.getTeams().reduce([], (players, team) -> players.concat(team.getOnlinePlayers()));
+        final onlinePlayers = game.getOnlinePlayers();
 
         if(game.getMemoryGameState().getBool(StateKey.stageTeleportPlayersToCenter(newValue)) == true){
-            teleportPlayersToCenter(onlinePlayersInATeam, game);
+            teleportPlayersToCenter(onlinePlayers, game);
         }
 
-        changePlayersGameMode(onlinePlayersInATeam, game, newValue);
+        changePlayersGameMode(onlinePlayers, game, newValue);
     }
 
     private function changePlayersGameMode(players:Multitude<Player>, game:InitializedGame, stageName:String) {
