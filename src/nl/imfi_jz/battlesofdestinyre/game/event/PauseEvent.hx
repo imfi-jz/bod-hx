@@ -7,7 +7,7 @@ class PauseEvent extends BoolChangeEvent {
     private final clock:Clock;
 
     public function new(eventData:CommonGameEventData, clock) {
-        super(StateKey.PAUSED, eventData.sharedMemory.getBoolMemory(), eventData.gameStateChangeListener);
+        super(StateKey.PAUSED, eventData.game);
 
         this.clock = clock;
     }

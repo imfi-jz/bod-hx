@@ -6,18 +6,25 @@ abstract StateKey(Array<String>) from Array<String> to Array<String> {
     public static final STAGE:StateKey = ["Stage"];
     public static final PAUSED:StateKey = ["Paused"];
     public static final SECONDS_PER_TICK:StateKey = ["Seconds per tick"];
+    public static final CENTER_X:StateKey = [CENTER, "X"];
+    public static final CENTER_Y:StateKey = [CENTER, "Y"];
+    public static final CENTER_Z:StateKey = [CENTER, "Z"];
+    public static final CENTER_WORLD:StateKey = [CENTER, "World"];
 
-    private static final PLAYERS = "Players";
-    private static final TEAM = "Team";
+    private static inline final CENTER = "Center";
+
+    private static inline final PLAYERS = "Players";
+    private static inline final TEAM = "Team";
     
-    private static final STAGES = "Stages";
-    private static final NEXT_STAGE = "Next stage";
-    private static final SECONDS_REMAINING = "Seconds remaining";
-    private static final MINIMUM_TEAMS = "Minimum teams";
-    private static final MAXIMUM_TEAMS = "Maximum teams";
-    private static final MINIMUM_PLAYERS_PER_TEAM = "Minimum players per team";
-    private static final MAXIMUM_PLAYERS_PER_TEAM = "Maximum players per team";
-    private static final SECONDS_REMAINING_WHEN_TEAM_CONDITIONS_MET = "Seconds remaining when team conditions met";
+    private static inline final STAGES = "Stages";
+    private static inline final NEXT_STAGE = "Next stage";
+    private static inline final SECONDS_REMAINING = "Seconds remaining";
+    private static inline final MINIMUM_TEAMS = "Minimum teams";
+    private static inline final MAXIMUM_TEAMS = "Maximum teams";
+    private static inline final MINIMUM_PLAYERS_PER_TEAM = "Minimum players per team";
+    private static inline final MAXIMUM_PLAYERS_PER_TEAM = "Maximum players per team";
+    private static inline final SECONDS_REMAINING_WHEN_TEAM_CONDITIONS_MET = "Seconds remaining when team conditions met";
+    private static inline final TELEPORT_PLAYERS_TO_CENTER = "Teleport players to center";
 
     public inline function toString(delimiter:String):String {
         return this.join(delimiter);
@@ -78,5 +85,8 @@ abstract StateKey(Array<String>) from Array<String> to Array<String> {
     }
     public static inline function stageSecondsRemainingWhenTeamConditionsMet(stageName:String):StateKey {
         return [STAGES, stageName, SECONDS_REMAINING_WHEN_TEAM_CONDITIONS_MET];
+    }
+    public static inline function stageTeleportPlayersToCenter(stageName:String):StateKey {
+        return [STAGES, stageName, TELEPORT_PLAYERS_TO_CENTER];
     }
 }

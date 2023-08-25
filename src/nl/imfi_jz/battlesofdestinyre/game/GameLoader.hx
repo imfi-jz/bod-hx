@@ -51,9 +51,16 @@ class GameLoader {
 
         registerGameName(stateName, sharedPluginMemory.getObjectMemory(), sharedPluginMemory.getStringMemory());
 
-        new EventFactory().createEventsForGame(
+        final initializedGame = new InitializedGame(
+            stateName,
+            fileGameState,
             memoryGameState,
             stateChangeListener,
+            plugin
+        );
+
+        new EventFactory().createEventsForGame(
+            initializedGame,
             plugin
         );
 
@@ -61,12 +68,7 @@ class GameLoader {
             memoryGameState.setBool(StateKey.PAUSED, true);
         }
 
-        return new InitializedGame(
-            stateName,
-            fileGameState,
-            memoryGameState,
-            stateChangeListener
-        );
+        return initializedGame;
     }
 
     private function addTrackabilityForGame(

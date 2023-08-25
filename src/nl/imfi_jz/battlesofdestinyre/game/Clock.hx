@@ -18,7 +18,7 @@ class Clock {
     }
 
     public function start() {
-        Debugger.log("Starting " + eventData.memoryGameState.getName() + "'s clock in stage " + stageName);
+        Debugger.log("Starting " + eventData.game.getName() + "'s clock in stage " + stageName);
 
         if(stageName == null){
             Debugger.warn("Stage name is null, not starting clock");
@@ -26,19 +26,19 @@ class Clock {
         else {
             new TickEvent(eventData, this, stageName);
 
-            final currentSecondsRemaining = eventData.memoryGameState.getFloat(StateKey.stageSecondsRemaining(stageName));
+            final currentSecondsRemaining = eventData.game.getMemoryGameState().getFloat(StateKey.stageSecondsRemaining(stageName));
             scheduleNextTick(currentSecondsRemaining);
         }
     }
 
     public function stop() {
-        Debugger.log("Stopping " + eventData.memoryGameState.getName() + "'s clock in stage " + stageName);
+        Debugger.log("Stopping " + eventData.game.getName() + "'s clock in stage " + stageName);
         
         new UnhandledTickEvent(eventData, stageName);
     }
 
     public function scheduleNextTick(currentSecondsRemaining:Null<Float>) {
-        final secondsBetweenTicks = eventData.memoryGameState.getFloat(StateKey.SECONDS_PER_TICK);
+        final secondsBetweenTicks = eventData.game.getMemoryGameState().getFloat(StateKey.SECONDS_PER_TICK);
 
         if(secondsBetweenTicks == null || secondsBetweenTicks <= 0){
             Debugger.warn(Std.string(StateKey.SECONDS_PER_TICK) + ' is $secondsBetweenTicks, can\'t schedule next tick');
@@ -46,7 +46,7 @@ class Clock {
         else scheduler.executeAfterSeconds(
             secondsBetweenTicks,
             () -> {
-                eventData.memoryGameState.setFloat(
+                eventData.game.getMemoryGameState().setFloat(
                     StateKey.stageSecondsRemaining(stageName),
                     currentSecondsRemaining == null
                         ? null

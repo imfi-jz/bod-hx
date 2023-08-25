@@ -9,7 +9,7 @@ class TickEvent extends FloatChangeEvent {
     private final stageName:String;
 
     public function new(eventData:CommonGameEventData, clock, stageName) {
-        super(StateKey.stageSecondsRemaining(stageName), eventData.sharedMemory.getFloatMemory(), eventData.gameStateChangeListener);
+        super(StateKey.stageSecondsRemaining(stageName), eventData.game);
         
         this.clock = clock;
         this.eventData = eventData;
@@ -29,7 +29,7 @@ class TickEvent extends FloatChangeEvent {
     }
 
     private function switchToNextStage() {
-        final nextStage = eventData.memoryGameState.getString(StateKey.stageNextStage(stageName));
+        final nextStage = eventData.game.getMemoryGameState().getString(StateKey.stageNextStage(stageName));
 
         clock.stop();
 
@@ -39,7 +39,7 @@ class TickEvent extends FloatChangeEvent {
             // TODO: mark game as finished?
         }
         else {
-            eventData.memoryGameState.setString(StateKey.STAGE, nextStage);
+            eventData.game.getMemoryGameState().setString(StateKey.STAGE, nextStage);
         }
     }
 }

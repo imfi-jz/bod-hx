@@ -1,6 +1,6 @@
 package nl.imfi_jz.battlesofdestinyre.game;
 
-import haxe.exceptions.NotImplementedException;
+import nl.imfi_jz.minecraft_api.World;
 import nl.imfi_jz.minecraft_api.GameObject.Player;
 import nl.imfi_jz.functional.collection.Collection.Multitude;
 import nl.imfi_jz.minecraft_api.Gate.Game;
@@ -22,7 +22,7 @@ class Team {
         this.stringMemory = stringMemory;
         this.game = game;
 
-        this.teamKey = teamKey ?? Std.string(initializedGame.getTeams(game, stringMemory).reduce(
+        this.teamKey = teamKey ?? Std.string(initializedGame.getTeams().reduce(
             1,
             (defaultName, team) -> Std.parseInt(team.getKey()) == defaultName ? defaultName + 1 : defaultName
         ));
@@ -34,8 +34,11 @@ class Team {
         memoryGameState.setString(stateKey, teamKey);
     }
 
-    public function getPlayers():Multitude<Player> {
-        throw new NotImplementedException();
+    public function getOnlinePlayers():Multitude<Player> {
+        final worlds:Multitude<World> = game.getWorlds();
+        return worlds.reduce([], (players, world) -> players.concat(world.getPlayers())).filter(
+            (player) -> memoryGameState.getString(StateKey.playerTeam(player.getName())) == teamKey
+        );
     }
 
     public function getKey():String {

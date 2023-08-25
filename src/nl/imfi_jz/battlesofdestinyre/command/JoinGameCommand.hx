@@ -72,10 +72,7 @@ class JoinGameCommand implements Command {
 		if(!issuesReported(executor, arguments)){
 			final gameName = getGameNameArgument(arguments);
 			final stringMemory = plugin.getSharedPluginMemory().getStringMemory();
-			final existingTeams = initializedGamesByName[gameName].getTeams(
-				plugin.getGame(),
-				stringMemory
-			);
+			final existingTeams = initializedGamesByName[gameName].getTeams();
 
 			final team = existingTeams.any()
 				? existingTeams.first().value

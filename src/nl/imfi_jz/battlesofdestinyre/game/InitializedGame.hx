@@ -1,5 +1,6 @@
 package nl.imfi_jz.battlesofdestinyre.game;
 
+import nl.imfi_jz.minecraft_api.Gate.Plugin;
 import nl.imfi_jz.battlesofdestinyre.state.StateKey;
 import nl.imfi_jz.minecraft_api.World;
 import nl.imfi_jz.minecraft_api.Gate.SharedMemory;
@@ -15,19 +16,21 @@ class InitializedGame {
     private final fileGameState:FileGameState;
     private final memoryGameState:SharedMemoryGameState;
     private final gameStateChangeListener:GameStateChangeListener;
+    private final plugin:Plugin;
     
-    public function new(gameName, fileGameState, memoryGameState, gameStateChangeListener) {
+    public function new(gameName, fileGameState, memoryGameState, gameStateChangeListener, plugin) {
         this.gameName = gameName;
         this.fileGameState = fileGameState;
         this.memoryGameState = memoryGameState;
         this.gameStateChangeListener = gameStateChangeListener;
+        this.plugin = plugin;
     }
 
     public function getName():String {
         return gameName;
     }
 
-    public function getFileGameState():FileGameState {
+    @:deprecated public function getFileGameState():FileGameState {
         return fileGameState;
     }
 
@@ -39,11 +42,12 @@ class InitializedGame {
         return memoryGameState;
     }
 
-    public function getTeams(
-        game:Game,
-        stringMemory:SharedMemory<String>
-    ):Multitude<Team> {
-        final worlds:Multitude<World> = game.getWorlds();
+    public function getPlugin():Plugin {
+        return plugin;
+    }
+
+    public function getTeams():Multitude<Team> {
+        final worlds:Multitude<World> = plugin.getGame().getWorlds();
         final players:Multitude<Player> = worlds.reduce([], (players, world) -> players.concat(world.getPlayers()));
 
         return players.reduce([], (teams, player) -> {
@@ -52,7 +56,12 @@ class InitializedGame {
             if(teamKey == null){
                 return teams;
             }
-            else return teams.concat([new Team(teamKey, this, stringMemory, game)]);
+            else return teams.concat([new Team(
+                teamKey,
+                this,
+                plugin.getSharedPluginMemory().getStringMemory(),
+                plugin.getGame()
+            )]);
         });
     }
 }

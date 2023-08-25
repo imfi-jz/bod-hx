@@ -2,8 +2,6 @@ package nl.imfi_jz.battlesofdestinyre.game.event;
 
 import nl.imfi_jz.battlesofdestinyre.state.StateKey;
 import nl.imfi_jz.minecraft_api.Gate.Plugin;
-import nl.imfi_jz.battlesofdestinyre.state.SharedMemoryGameState;
-import nl.imfi_jz.battlesofdestinyre.state.listener.GameStateChangeListener;
 
 class EventFactory {
     
@@ -12,17 +10,15 @@ class EventFactory {
     }
 
     public function createEventsForGame(
-        memoryGameState:SharedMemoryGameState,
-        gameStateChangeListener:GameStateChangeListener,
+        initializedGame:InitializedGame,
         plugin:Plugin
     ):Array<StateChangeEvent<Any>> {
         final eventData = new CommonGameEventData(
-            gameStateChangeListener,
-            plugin.getSharedPluginMemory(),
-            memoryGameState
+            initializedGame,
+            plugin.getSharedPluginMemory()
         );
         
-        final clock = new Clock(eventData, plugin.getScheduler(), memoryGameState.getString(StateKey.STAGE));
+        final clock = new Clock(eventData, plugin.getScheduler(), initializedGame.getMemoryGameState().getString(StateKey.STAGE));
 
         return [
             new PauseEvent(eventData, clock),

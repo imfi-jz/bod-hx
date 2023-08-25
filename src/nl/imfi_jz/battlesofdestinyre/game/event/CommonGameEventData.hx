@@ -1,17 +1,14 @@
 package nl.imfi_jz.battlesofdestinyre.game.event;
 
-import nl.imfi_jz.battlesofdestinyre.state.SharedMemoryGameState;
 import nl.imfi_jz.minecraft_api.Gate.SharedPluginMemory;
-import nl.imfi_jz.battlesofdestinyre.state.listener.GameStateChangeListener;
 
+@:deprecated
 class CommonGameEventData {
-    public final gameStateChangeListener:GameStateChangeListener;
     public final sharedMemory:SharedPluginMemory;
-    public final memoryGameState:SharedMemoryGameState;
+    public final game:InitializedGame;
 
-    public inline function new(gameStateChangeListener, sharedMemory, memoryGameState) {
-        this.gameStateChangeListener = gameStateChangeListener;
+    public inline function new(game, sharedMemory) {
         this.sharedMemory = sharedMemory;
-        this.memoryGameState = memoryGameState;
+        this.game = game;
     }
 }
