@@ -1,6 +1,8 @@
 package nl.imfi_jz.battlesofdestinyre.game;
 
-import nl.imfi_jz.battlesofdestinyre.event.PlayerDamagePlayerEvent;
+import nl.imfi_jz.battlesofdestinyre.event.game.PlayerDamagePlayerEvent;
+import nl.imfi_jz.battlesofdestinyre.event.game.GameRuleEvent;
+import nl.imfi_jz.minecraft_api.Event;
 import nl.imfi_jz.battlesofdestinyre.game.event.EventFactory;
 import nl.imfi_jz.battlesofdestinyre.state.listener.GameStateChangeListener;
 import nl.imfi_jz.minecraft_api.Gate.SharedPluginMemory;
@@ -170,6 +172,16 @@ class GameLoader {
     }
     
 	private function registerSpigotEventsAccosiatedWithGame(initializedGame:InitializedGame, plugin:Plugin) {
-        plugin.getRegisterer().registerEvent(new PlayerDamagePlayerEvent(initializedGame));
+        final registerer = plugin.getRegisterer();
+        final events:Multitude<Event> = registerer.getRegisteredEvents();
+        final existingGames = cast(events.filter(event -> event is GameRuleEvent).first().value, GameRuleEvent).getInitializedGames();
+        
+        events.each(event -> event is GameRuleEvent ? registerer.unregisterEvent(event) : null);
+
+        final eventsToRegister:Multitude<GameRuleEvent> = [
+            cast new PlayerDamagePlayerEvent([initializedGame].concat(existingGames)),
+        ];
+
+        eventsToRegister.each(event -> registerer.registerEvent(event));
 	}
 }
