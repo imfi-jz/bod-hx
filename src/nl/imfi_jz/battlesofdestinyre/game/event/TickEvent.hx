@@ -2,6 +2,7 @@ package nl.imfi_jz.battlesofdestinyre.game.event;
 
 import nl.imfi_jz.minecraft_api.implementation.Debugger;
 import nl.imfi_jz.battlesofdestinyre.state.StateKey;
+import nl.imfi_jz.battlesofdestinyre.game.event.base.FloatChangeEvent;
 
 class TickEvent extends FloatChangeEvent {
     private final clock:Clock;

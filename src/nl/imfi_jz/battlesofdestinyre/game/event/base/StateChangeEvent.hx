@@ -1,4 +1,4 @@
-package nl.imfi_jz.battlesofdestinyre.game.event;
+package nl.imfi_jz.battlesofdestinyre.game.event.base;
 
 import nl.imfi_jz.minecraft_api.implementation.Debugger;
 
