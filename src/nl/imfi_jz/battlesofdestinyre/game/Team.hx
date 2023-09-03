@@ -1,25 +1,19 @@
 package nl.imfi_jz.battlesofdestinyre.game;
 
+import nl.imfi_jz.battlesofdestinyre.game.event.PlayerChangeTeamEvent;
 import nl.imfi_jz.minecraft_api.World;
 import nl.imfi_jz.minecraft_api.GameObject.Player;
 import nl.imfi_jz.functional.collection.Collection.Multitude;
 import nl.imfi_jz.minecraft_api.Gate.Game;
-import nl.imfi_jz.minecraft_api.Gate.SharedMemory;
-import nl.imfi_jz.battlesofdestinyre.state.listener.GameStateChangeListener;
 import nl.imfi_jz.battlesofdestinyre.state.StateKey;
-import nl.imfi_jz.battlesofdestinyre.state.SharedMemoryGameState;
 
 class Team {
-	private final memoryGameState:SharedMemoryGameState;
-    private final gameStateChangeListener:GameStateChangeListener;
-    private final stringMemory:SharedMemory<String>;
+	private final initializedGame:InitializedGame;
     private final game:Game;
     private final teamKey:String;
 
-    public function new(teamKey:Null<String>, initializedGame:InitializedGame, stringMemory:SharedMemory<String>, game:Game) {
-        this.memoryGameState = initializedGame.getMemoryGameState();
-        this.gameStateChangeListener = initializedGame.getGameStateChangeListener();
-        this.stringMemory = stringMemory;
+    public function new(teamKey:Null<String>, initializedGame:InitializedGame, game:Game) {
+        this.initializedGame = initializedGame;
         this.game = game;
 
         this.teamKey = teamKey ?? Std.string(initializedGame.getTeams().reduce(
@@ -30,17 +24,16 @@ class Team {
 
     public function addPlayer(playerName:String) {
         final stateKey = StateKey.playerTeam(playerName);
-        gameStateChangeListener.setStringChangeHandler(stateKey, stringMemory);
-        // TODO: Create ChangeTeamEvent and JoinGameEvent
-        // - Run command to set player team (according to game settings)
-        // - Run command to set game name in tag
-        memoryGameState.setString(stateKey, teamKey);
+        
+        new PlayerChangeTeamEvent(playerName, stateKey, initializedGame, game);
+
+        initializedGame.getMemoryGameState().setString(stateKey, teamKey);
     }
 
     public function getOnlinePlayers():Multitude<Player> {
         final worlds:Multitude<World> = game.getWorlds();
         return worlds.reduce([], (players, world) -> players.concat(world.getPlayers())).filter(
-            (player) -> memoryGameState.getString(StateKey.playerTeam(player.getName())) == teamKey
+            (player) -> initializedGame.getMemoryGameState().getString(StateKey.playerTeam(player.getName())) == teamKey
         );
     }
 

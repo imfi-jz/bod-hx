@@ -79,7 +79,6 @@ class JoinGameCommand implements Command {
 				: new Team(
 					null,
 					initializedGamesByName[gameName],
-					stringMemory,
 					plugin.getGame()
 				);
 

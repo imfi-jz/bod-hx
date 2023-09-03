@@ -3,8 +3,6 @@ package nl.imfi_jz.battlesofdestinyre.game;
 import nl.imfi_jz.minecraft_api.Gate.Plugin;
 import nl.imfi_jz.battlesofdestinyre.state.StateKey;
 import nl.imfi_jz.minecraft_api.World;
-import nl.imfi_jz.minecraft_api.Gate.SharedMemory;
-import nl.imfi_jz.minecraft_api.Gate.Game;
 import nl.imfi_jz.minecraft_api.GameObject.Player;
 import nl.imfi_jz.functional.collection.Collection.Multitude;
 import nl.imfi_jz.battlesofdestinyre.state.SharedMemoryGameState;
@@ -46,6 +44,14 @@ class InitializedGame {
         return plugin;
     }
 
+    public function getCommandTag():String {
+        return getCommandTagPrefix() + StringTools.replace(gameName, ' ', '-');
+    }
+
+    public inline function getCommandTagPrefix():String {
+        return "bod-";
+    }
+
     public function getTeams():Multitude<Team> {
         final worlds:Multitude<World> = plugin.getGame().getWorlds();
         final players:Multitude<Player> = worlds.reduce([], (players, world) -> players.concat(world.getPlayers()));
@@ -59,7 +65,6 @@ class InitializedGame {
             else return teams.concat([new Team(
                 teamKey,
                 this,
-                plugin.getSharedPluginMemory().getStringMemory(),
                 plugin.getGame()
             )]);
         });

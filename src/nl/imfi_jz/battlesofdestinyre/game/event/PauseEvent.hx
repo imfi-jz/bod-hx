@@ -18,10 +18,14 @@ class PauseEvent extends BoolChangeEvent {
 
         if(isPaused != null && !isPaused && (wasPaused == null || wasPaused)){
             clock.start();
+            
+            // TODO: Run command to enable players' movement and camera permissions
         }
         
         if(isPaused == null || isPaused){
             clock.stop();
+
+            // TODO: Run command to disable players' movement and camera permissions
         }
     }
 }
