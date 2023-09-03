@@ -33,9 +33,13 @@ class TickEvent extends FloatChangeEvent {
 
         if(nextStage == null){
             Debugger.log("No next stage found. Game is over");
-            // TODO: reset players to the state they were in before the game started
-            // TODO: mark game as finished?
-            // TODO: unregister events bound to this game?
+            /* TODO:
+            - reset players to the state they were in before the game started
+            - mark game as finished?
+            - unregister events bound to this game?
+            - remove game name from players' tags
+            - remove players' team via command
+            */
         }
         else {
             getInitializedGame().getMemoryGameState().setString(StateKey.STAGE, nextStage);

@@ -31,6 +31,9 @@ class Team {
     public function addPlayer(playerName:String) {
         final stateKey = StateKey.playerTeam(playerName);
         gameStateChangeListener.setStringChangeHandler(stateKey, stringMemory);
+        // TODO: Create ChangeTeamEvent and JoinGameEvent
+        // - Run command to set player team (according to game settings)
+        // - Run command to set game name in tag
         memoryGameState.setString(stateKey, teamKey);
     }
 
