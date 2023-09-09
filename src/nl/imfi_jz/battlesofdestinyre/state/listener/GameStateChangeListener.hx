@@ -17,7 +17,12 @@ class GameStateChangeListener {
             (previousValue, newValue) -> {
                 persistFunction(newValue);
 
-                if(handler != null) {
+                if(newValue == null){
+                    // TODO: test this
+                    removeKeyFromTrackedKeys(key.toString(SharedMemoryGameState.SHARED_MEMORY_KEY_SEPARATOR));
+                    sharedMemory.valueChanged(SharedMemoryGameState.getAPrefixedSharedMemoryKey(fileGameState.getName(), key), null);
+                }
+                else if(handler != null) {
                     handler(previousValue, newValue);
                 }
             }
@@ -43,7 +48,7 @@ class GameStateChangeListener {
     }
 
     private function addKeyToTrackedKeys(key:String) {
-        final gameTrackedKeysKey = GeneralMemoryKey.TRACKED_KEYS_MEMORY_KEY.concat([fileGameState.getName()]);
+        final gameTrackedKeysKey = GeneralMemoryKey.getTrackedKeysMemoryKey(fileGameState.getName());
         final existingTrackedKeys:Array<String> = getTrackedKeys(objectMemory)
             .map((trackedKey) -> trackedKey.join(SharedMemoryGameState.SHARED_MEMORY_KEY_SEPARATOR));
 
@@ -54,9 +59,23 @@ class GameStateChangeListener {
             );
         }
     }
+
+    private function removeKeyFromTrackedKeys(key:String) {
+        final gameTrackedKeysKey = GeneralMemoryKey.getTrackedKeysMemoryKey(fileGameState.getName());
+        final existingTrackedKeys:Array<String> = getTrackedKeys(objectMemory)
+            .map((trackedKey) -> trackedKey.join(SharedMemoryGameState.SHARED_MEMORY_KEY_SEPARATOR));
+
+        if(existingTrackedKeys.contains(key)){
+            objectMemory.setValue(
+                SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, gameTrackedKeysKey),
+                existingTrackedKeys.filter((trackedKey) -> trackedKey != key)
+            );
+        }
+    }
     
+    /** Returns all keys that are tracked for this game where the outer array are the keys and the inner array are the parts of the key (as seperated by the delimiter) **/
     public function getTrackedKeys(objectMemory:SharedMemory<Dynamic>):Array<Array<String>> {
-        final gameTrackedKeysKey = GeneralMemoryKey.TRACKED_KEYS_MEMORY_KEY.concat([fileGameState.getName()]);
+        final gameTrackedKeysKey = GeneralMemoryKey.getTrackedKeysMemoryKey(fileGameState.getName());
         final existingTrackedKeys:Array<String> = objectMemory.getValue(
             SharedMemoryGameState.getAPrefixedSharedMemoryKey(null, gameTrackedKeysKey)
         );

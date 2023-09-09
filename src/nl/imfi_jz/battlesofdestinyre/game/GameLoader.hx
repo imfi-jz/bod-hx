@@ -98,22 +98,22 @@ class GameLoader {
         };
 
         addTracker("bool", (key) -> {
-            // Initialize the memory game state with the value found in the file game state
-            memoryGameState.setBool(key, fileGameState.getBool(key));
             // Add a standard change handler that saves changes to file, which can be extended by creating a new GameStateChangeListener later
             stateChangeListener.setBoolChangeHandler(key, sharedPluginMemory.getBoolMemory());
+            // Initialize the memory game state with the value found in the file game state
+            memoryGameState.setBool(key, fileGameState.getBool(key));
         });
         addTracker("float", (key) -> {
-            memoryGameState.setFloat(key, fileGameState.getFloat(key));
             stateChangeListener.setFloatChangeHandler(key, sharedPluginMemory.getFloatMemory());
+            memoryGameState.setFloat(key, fileGameState.getFloat(key));
         });
         addTracker("string", (key) -> {
-            memoryGameState.setString(key, fileGameState.getString(key));
             stateChangeListener.setStringChangeHandler(key, sharedPluginMemory.getStringMemory());
+            memoryGameState.setString(key, fileGameState.getString(key));
         });
         addTracker("stringarray", (key) -> {
-            memoryGameState.setStringArray(key, fileGameState.getStringArray(key));
             stateChangeListener.setStringArrayChangeHandler(key, sharedPluginMemory.getObjectMemory());
+            memoryGameState.setStringArray(key, fileGameState.getStringArray(key));
         });
     }
 
