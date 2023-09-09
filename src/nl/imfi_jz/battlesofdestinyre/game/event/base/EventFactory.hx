@@ -15,9 +15,7 @@ class EventFactory {
     ):Array<StateChangeEvent<Any>> {
         final clock = new Clock(initializedGame, initializedGame.getMemoryGameState().getString(StateKey.STAGE));
 
-        // TODO: Loop through all keys of the game state file and create events based on those.
-        // This is to prevent set values from not being tracked (when edited via the set command for example).
-
+        // Return the root events (that are not created by other events)
         return [
             new PauseEvent(initializedGame, clock),
             new StageChangeEvent(initializedGame),

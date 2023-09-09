@@ -1,5 +1,6 @@
 package nl.imfi_jz.battlesofdestinyre.game;
 
+import nl.imfi_jz.minecraft_api.implementation.Debugger;
 import nl.imfi_jz.battlesofdestinyre.event.game.PlayerDamagePlayerEvent;
 import nl.imfi_jz.battlesofdestinyre.event.game.GameRuleEvent;
 import nl.imfi_jz.minecraft_api.Event;
@@ -89,6 +90,9 @@ class GameLoader {
                     if(key != null && key.length > 0){
                         trackFunction(key.split(SharedMemoryGameState.SHARED_MEMORY_KEY_SEPARATOR));
                     }
+                    else {
+                        Debugger.warn('Tried to track unspecified $typeKey key');
+                    }
                 }
             );
         };
@@ -114,25 +118,25 @@ class GameLoader {
     }
 
     private function trackAllKnownKeys(sharedPluginMemory:SharedPluginMemory, memoryGameState:SharedMemoryGameState, fileGameState:FileGameState): Void {
-        final boolKeys:Multitude<StateKey> = fileGameState.getAllBoolStateKeysPresent().concat(StateKey.boolKeys());
+        final boolKeys:Multitude<StateKey> = fileGameState.getAllBoolStateKeysPresent();
         boolKeys.each((key) -> sharedPluginMemory.getStringMemory().setValue(
             memoryGameState.getPrefixedSharedMemoryKey(['trackbool']),
             key.toString(SharedMemoryGameState.SHARED_MEMORY_KEY_SEPARATOR)
         ));
 
-        final floatKeys:Multitude<StateKey> = fileGameState.getAllFloatStateKeysPresent().concat(StateKey.floatKeys());
+        final floatKeys:Multitude<StateKey> = fileGameState.getAllFloatStateKeysPresent();
         floatKeys.each((key) -> sharedPluginMemory.getStringMemory().setValue(
             memoryGameState.getPrefixedSharedMemoryKey(['trackfloat']),
             key.toString(SharedMemoryGameState.SHARED_MEMORY_KEY_SEPARATOR)
         ));
 
-        final stringKeys:Multitude<StateKey> = fileGameState.getAllStringStateKeysPresent().concat(StateKey.stringKeys());
+        final stringKeys:Multitude<StateKey> = fileGameState.getAllStringStateKeysPresent();
         stringKeys.each((key) -> sharedPluginMemory.getStringMemory().setValue(
             memoryGameState.getPrefixedSharedMemoryKey(['trackstring']),
             key.toString(SharedMemoryGameState.SHARED_MEMORY_KEY_SEPARATOR)
         ));
         
-        final stringArrayKeys:Multitude<StateKey> = fileGameState.getAllStringArrayStateKeysPresent().concat(StateKey.stringArrayKeys());
+        final stringArrayKeys:Multitude<StateKey> = fileGameState.getAllStringArrayStateKeysPresent();
         stringArrayKeys.each((key) -> sharedPluginMemory.getStringMemory().setValue(
             memoryGameState.getPrefixedSharedMemoryKey(['trackstringarray']),
             key.toString(SharedMemoryGameState.SHARED_MEMORY_KEY_SEPARATOR)

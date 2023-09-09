@@ -134,8 +134,7 @@ class SetGamePropertyCommand implements Command {
     }
 
     private function isValidStateKey(stateKey:String, gameName:String):Bool {
-        final keys:Multitude<StateKey> = StateKey.allKeys()
-            .concat(gameStateChangeListenersByName[gameName].getTrackedKeys(sharedMemory.getObjectMemory()));
+        final keys:Multitude<StateKey> = gameStateChangeListenersByName[gameName].getTrackedKeys(sharedMemory.getObjectMemory());
 
         return keys.reduce(false, (valid, key) -> {
             return valid || key.toString(SharedMemoryGameState.SHARED_MEMORY_KEY_SEPARATOR) == stateKey;
