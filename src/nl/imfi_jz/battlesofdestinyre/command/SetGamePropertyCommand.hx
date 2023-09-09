@@ -1,6 +1,5 @@
 package nl.imfi_jz.battlesofdestinyre.command;
 
-import nl.imfi_jz.battlesofdestinyre.game.InitializedGame;
 import nl.imfi_jz.battlesofdestinyre.state.listener.GameStateChangeListener;
 import nl.imfi_jz.battlesofdestinyre.game.GameLoader;
 import nl.imfi_jz.minecraft_api.implementation.Debugger;
@@ -13,16 +12,17 @@ import nl.imfi_jz.battlesofdestinyre.state.StateKey;
 import nl.imfi_jz.minecraft_api.Logger.ConsoleLogger;
 import nl.imfi_jz.minecraft_api.TypeDefinitions.StandardCollection;
 import nl.imfi_jz.minecraft_api.GameObject;
-import nl.imfi_jz.minecraft_api.Command;
 
-class SetGamePropertyCommand implements Command {
+class SetGamePropertyCommand extends CommandOnGame {
     private static inline final ARGUMENT_WITH_SPACES_INDICATOR = '"';
 
     private final sharedMemory:SharedPluginMemory;
     private final pluginNameCapitalLower:String;
     private final gameStateChangeListenersByName:Map<String, GameStateChangeListener>;
 
-    public function new(sharedMemory, pluginNameCapitalLower, initializedGames:Multitude<InitializedGame>) {
+    public function new(sharedMemory, pluginNameCapitalLower, initializedGames) {
+        super(initializedGames);
+
         this.sharedMemory = sharedMemory;
         this.pluginNameCapitalLower = pluginNameCapitalLower;
         this.gameStateChangeListenersByName = initializedGames.reduce(
@@ -155,7 +155,7 @@ class SetGamePropertyCommand implements Command {
         else if(Math.isNaN(Std.parseFloat(value))){
             return sharedMemory.getStringMemory();
         }
-        else return sharedMemory.getStringMemory();
+        else return sharedMemory.getFloatMemory();
     }
 
     private function convertStringValueToMemoryType(value:String):Dynamic {

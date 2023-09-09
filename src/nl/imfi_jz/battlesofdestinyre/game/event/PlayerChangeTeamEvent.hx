@@ -15,16 +15,30 @@ class PlayerChangeTeamEvent extends StringChangeEvent {
     }
 
 	private function handle(previousValue:Null<String>, newValue:Null<String>) {
-        if(previousValue == null){
-            new PlayerJoinGameEvent(game, getInitializedGame(), playerName).handle();
+        // TODO: Add PlayerLeaveGameEvent when newValue == null?
+
+        if(isValidTeamName(newValue)){
+            if(previousValue == null){
+                new PlayerJoinGameEvent(game, getInitializedGame(), playerName).handle();
+            }
+            else {
+                if(!new Team(previousValue, getInitializedGame(), game).getOnlinePlayers().any()){
+                    game.executeCommand('team', ['remove', previousValue]);
+                }
+            }
+
+            game.executeCommand('team', ['join', newValue, playerName]);
         }
         else {
-            game.executeCommand('team', ['join', newValue, playerName]);
-            
-            if(! new Team(previousValue, getInitializedGame(), game).getOnlinePlayers().any()){
-                game.executeCommand('team', ['remove', previousValue]);
-            }
+            getInitializedGame().getOnlinePlayers().find((player) -> player.getName() == playerName)?.value?.tell('The team name $newValue is invalid');
         }
+    }
+
+    private function isValidTeamName(newValue:Null<String>) {
+        return newValue != null
+            && newValue.length > 0
+            && newValue.length <= 10
+            && Math.isNaN(Std.parseFloat(newValue));
     }
 }
 

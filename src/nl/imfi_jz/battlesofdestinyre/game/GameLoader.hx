@@ -1,5 +1,8 @@
 package nl.imfi_jz.battlesofdestinyre.game;
 
+import nl.imfi_jz.battlesofdestinyre.command.GameCommandsFactory;
+import nl.imfi_jz.battlesofdestinyre.command.CommandOnGame;
+import nl.imfi_jz.minecraft_api.Command;
 import nl.imfi_jz.battlesofdestinyre.event.game.GameRuleEventFactory;
 import nl.imfi_jz.minecraft_api.implementation.Debugger;
 import nl.imfi_jz.battlesofdestinyre.event.game.GameRuleEvent;
@@ -72,7 +75,8 @@ class GameLoader {
             memoryGameState.setBool(StateKey.PAUSED, true);
         }
 
-        registerSpigotEventsAccosiatedWithGame(initializedGame, plugin);
+        reregisterGameRuleEventsWithGame(initializedGame, plugin);
+        reregisterCommandsWithGame(initializedGame, plugin);
 
         return initializedGame;
     }
@@ -175,15 +179,32 @@ class GameLoader {
         );   
     }
     
-	private function registerSpigotEventsAccosiatedWithGame(initializedGame:InitializedGame, plugin:Plugin) {
+	private function reregisterGameRuleEventsWithGame(initializedGame:InitializedGame, plugin:Plugin) {
         final registerer = plugin.getRegisterer();
         final events:Multitude<Event> = registerer.getRegisteredEvents();
-        final existingGames = cast(events.filter(event -> event is GameRuleEvent).first()?.value, GameRuleEvent)?.getInitializedGames() ?? [];
+        final gameRuleEvents = events.filter(event -> event is GameRuleEvent);
+        final existingGames = cast(gameRuleEvents.first()?.value, GameRuleEvent)?.getInitializedGames() ?? [];
         
-        events.each(event -> event is GameRuleEvent ? registerer.unregisterEvent(event) : null);
+        gameRuleEvents.each(event -> registerer.unregisterEvent(event));
 
         final eventsToRegister:Multitude<GameRuleEvent> = new GameRuleEventFactory().createEventsForGames([initializedGame].concat(existingGames));
 
         eventsToRegister.each(event -> registerer.registerEvent(event));
 	}
+
+    private function reregisterCommandsWithGame(initializedGame:InitializedGame, plugin:Plugin) {
+        final registerer = plugin.getRegisterer();
+        final commands:Multitude<Command> = registerer.getRegisteredCommands();
+        final gameCommands = commands.filter(command -> command is CommandOnGame);
+        final existingGames = cast(gameCommands.first()?.value, CommandOnGame)?.getInitializedGames() ?? [];
+
+        gameCommands.each(command -> registerer.unregisterCommand(command));
+
+        final commandsToRegister:Multitude<CommandOnGame> = new GameCommandsFactory().createCommandsForGames(
+            [initializedGame].concat(existingGames),
+            plugin
+        );
+
+        commandsToRegister.each(command -> registerer.registerCommand(command));
+    }
 }

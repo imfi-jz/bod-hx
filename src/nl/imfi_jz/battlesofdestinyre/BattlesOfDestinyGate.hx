@@ -1,8 +1,6 @@
 package nl.imfi_jz.battlesofdestinyre;
 
 import nl.imfi_jz.battlesofdestinyre.game.GameLoader;
-import nl.imfi_jz.battlesofdestinyre.command.JoinGameCommand;
-import nl.imfi_jz.battlesofdestinyre.command.SetGamePropertyCommand;
 import nl.imfi_jz.battlesofdestinyre.command.CreateGameCommand;
 import nl.imfi_jz.minecraft_api.implementation.Debugger;
 import nl.imfi_jz.minecraft_api.Gate;
@@ -20,17 +18,6 @@ class BattlesOfDestinyGate implements Gate {
             .map((state) -> gameLoader.initializeGame(state, plugin));
 
         plugin.getRegisterer().registerCommand(new CreateGameCommand(plugin));
-        
-        // TODO: Move set and join commands to game loader because they need to be reregistered when a game is created
-        plugin.getRegisterer().registerCommand(new SetGamePropertyCommand(
-            plugin.getSharedPluginMemory(),
-            plugin.getNameCapitals().toLowerCase(),
-            initializedGames
-        ));
-        plugin.getRegisterer().registerCommand(new JoinGameCommand(
-            plugin,
-            initializedGames,
-        ));
     }
 
 	public function disable(plugin:Plugin) {

@@ -1,7 +1,7 @@
 package nl.imfi_jz.battlesofdestinyre.command;
 
-import nl.imfi_jz.functional.collection.Collection.Multitude;
 import nl.imfi_jz.battlesofdestinyre.game.InitializedGame;
+import nl.imfi_jz.battlesofdestinyre.command.CommandOnGame;
 import nl.imfi_jz.minecraft_api.Gate.SharedMemory;
 import nl.imfi_jz.minecraft_api.Gate.Plugin;
 import nl.imfi_jz.battlesofdestinyre.game.Team;
@@ -10,15 +10,15 @@ import nl.imfi_jz.minecraft_api.MessageReceiver;
 import nl.imfi_jz.minecraft_api.Logger.ConsoleLogger;
 import nl.imfi_jz.minecraft_api.TypeDefinitions.StandardCollection;
 import nl.imfi_jz.minecraft_api.GameObject;
-import nl.imfi_jz.minecraft_api.Command;
 
-class JoinGameCommand implements Command {
-
+class JoinGameCommand extends CommandOnGame {
 	private final plugin:Plugin;
 	private final objectMemory:SharedMemory<Dynamic>;
 	private final initializedGamesByName:Map<String, InitializedGame>;
 
-    public function new(plugin:Plugin, initializedGames:Multitude<InitializedGame>) {
+    public function new(plugin:Plugin, initializedGames) {
+		super(initializedGames);
+
 		this.plugin = plugin;
 		this.objectMemory = plugin.getSharedPluginMemory().getObjectMemory();
 		this.initializedGamesByName = initializedGames.reduce(
