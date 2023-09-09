@@ -14,6 +14,7 @@ Stage data/options:
     Next stage
     Objective
     Commands to execute upon stage start (string array)
+        Game name in set command should be optional (at first only when run from file)
 
 Stage names should have no effect on any behavior.
 
