@@ -71,7 +71,6 @@ class JoinGameCommand implements Command {
 	public function executeByPlayer(executor:Player, arguments:StandardCollection<String>) {
 		if(!issuesReported(executor, arguments)){
 			final gameName = getGameNameArgument(arguments);
-			final stringMemory = plugin.getSharedPluginMemory().getStringMemory();
 			final existingTeams = initializedGamesByName[gameName].getTeams();
 
 			final team = existingTeams.any()

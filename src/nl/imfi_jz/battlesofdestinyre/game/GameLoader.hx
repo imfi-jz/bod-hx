@@ -1,10 +1,10 @@
 package nl.imfi_jz.battlesofdestinyre.game;
 
+import nl.imfi_jz.battlesofdestinyre.event.game.GameRuleEventFactory;
 import nl.imfi_jz.minecraft_api.implementation.Debugger;
-import nl.imfi_jz.battlesofdestinyre.event.game.PlayerDamagePlayerEvent;
 import nl.imfi_jz.battlesofdestinyre.event.game.GameRuleEvent;
 import nl.imfi_jz.minecraft_api.Event;
-import nl.imfi_jz.battlesofdestinyre.game.event.base.EventFactory;
+import nl.imfi_jz.battlesofdestinyre.game.event.base.StateChangeEventFactory;
 import nl.imfi_jz.battlesofdestinyre.state.listener.GameStateChangeListener;
 import nl.imfi_jz.minecraft_api.Gate.SharedPluginMemory;
 import nl.imfi_jz.battlesofdestinyre.state.StateKey;
@@ -63,7 +63,7 @@ class GameLoader {
             plugin
         );
 
-        new EventFactory().createEventsForGame(
+        new StateChangeEventFactory().createEventsForGame(
             initializedGame,
             plugin
         );
@@ -178,13 +178,11 @@ class GameLoader {
 	private function registerSpigotEventsAccosiatedWithGame(initializedGame:InitializedGame, plugin:Plugin) {
         final registerer = plugin.getRegisterer();
         final events:Multitude<Event> = registerer.getRegisteredEvents();
-        final existingGames = cast(events.filter(event -> event is GameRuleEvent).first().value, GameRuleEvent).getInitializedGames();
+        final existingGames = cast(events.filter(event -> event is GameRuleEvent).first()?.value, GameRuleEvent)?.getInitializedGames() ?? [];
         
         events.each(event -> event is GameRuleEvent ? registerer.unregisterEvent(event) : null);
 
-        final eventsToRegister:Multitude<GameRuleEvent> = [
-            cast new PlayerDamagePlayerEvent([initializedGame].concat(existingGames)),
-        ];
+        final eventsToRegister:Multitude<GameRuleEvent> = new GameRuleEventFactory().createEventsForGames([initializedGame].concat(existingGames));
 
         eventsToRegister.each(event -> registerer.registerEvent(event));
 	}

@@ -24,7 +24,7 @@ class CreateGameCommand implements Command {
 	}
 
     private inline function getNameArgument(arguments:StandardCollection<String>):String {
-        return arguments[0];
+        return arguments.length > 0 ? arguments[0] : '';
     }
 
     private inline function namePassesConstraints(gameName:String):Bool {

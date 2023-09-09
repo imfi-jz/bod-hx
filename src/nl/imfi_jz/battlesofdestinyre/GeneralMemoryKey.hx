@@ -1,7 +1,7 @@
 package nl.imfi_jz.battlesofdestinyre;
 
 abstract GeneralMemoryKey(Array<String>) from Array<String> to Array<String> {
-    public static final INITIALIZED_GAMES_MEMORY_KEY = ['games'];
+    public static final INITIALIZED_GAMES_MEMORY_KEY = ['gamenames'];
     public static final LAST_GAME_ADDED_MEMORY_KEY = ['lastgameadded'];
     public static final TRACKED_KEYS_MEMORY_KEY = ['keys'];
 

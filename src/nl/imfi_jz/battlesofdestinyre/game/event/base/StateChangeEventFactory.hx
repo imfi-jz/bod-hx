@@ -3,7 +3,7 @@ package nl.imfi_jz.battlesofdestinyre.game.event.base;
 import nl.imfi_jz.battlesofdestinyre.state.StateKey;
 import nl.imfi_jz.minecraft_api.Gate.Plugin;
 
-class EventFactory {
+class StateChangeEventFactory {
     
     public function new() {
         
