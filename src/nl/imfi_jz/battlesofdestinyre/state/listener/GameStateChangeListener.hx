@@ -1,5 +1,6 @@
 package nl.imfi_jz.battlesofdestinyre.state.listener;
 
+import java.lang.IllegalArgumentException;
 import nl.imfi_jz.minecraft_api.Gate.SharedMemory;
 
 class GameStateChangeListener {
@@ -40,7 +41,17 @@ class GameStateChangeListener {
     }
 
     public function setStringChangeHandler(key:StateKey, sharedMemory:SharedMemory<String>, ?handler:(previousValue:String, newValue:String)->Void):Void {
-        handle(sharedMemory, key, (newValue) -> fileGameState.setString(key, newValue), handler);
+        handle(
+            sharedMemory,
+            key,
+            (newValue) -> {
+                if(newValue == null || Math.isNaN(Std.parseFloat(newValue))){ // TODO: Maybe move the 'isNumber' check to a seperate function
+                    fileGameState.setString(key, newValue);
+                }
+                else throw new IllegalArgumentException('$newValue cannot be set to a string key as it would be parsed as a number');
+            },
+            handler
+        );
     }
 
     public function setStringArrayChangeHandler(key:StateKey, sharedMemory:SharedMemory<Dynamic>, ?handler:(previousValue:Dynamic, newValue:Dynamic)->Void):Void {

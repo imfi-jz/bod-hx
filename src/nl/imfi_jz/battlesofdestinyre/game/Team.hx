@@ -16,10 +16,10 @@ class Team {
         this.initializedGame = initializedGame;
         this.game = game;
 
-        this.teamKey = teamKey ?? Std.string(initializedGame.getTeams().reduce(
-            1,
-            (defaultName, team) -> Std.parseInt(team.getKey()) == defaultName ? defaultName + 1 : defaultName
-        ));
+        this.teamKey = teamKey ?? initializedGame.getTeams().reduce(
+            'A',
+            (defaultName, team) -> team.getKey() == defaultName ? String.fromCharCode(StringTools.fastCodeAt(defaultName, 0) + 1) : defaultName
+        );
     }
 
     public function addPlayer(playerName:String) {
