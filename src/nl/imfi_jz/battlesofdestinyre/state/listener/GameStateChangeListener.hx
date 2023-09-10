@@ -19,7 +19,6 @@ class GameStateChangeListener {
                 persistFunction(newValue);
 
                 if(newValue == null){
-                    // TODO: test this
                     removeKeyFromTrackedKeys(key.toString(SharedMemoryGameState.SHARED_MEMORY_KEY_SEPARATOR));
                     sharedMemory.valueChanged(SharedMemoryGameState.getAPrefixedSharedMemoryKey(fileGameState.getName(), key), null);
                 }
