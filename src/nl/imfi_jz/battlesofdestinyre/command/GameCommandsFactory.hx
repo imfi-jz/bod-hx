@@ -12,6 +12,8 @@ class GameCommandsFactory {
 
     public function createCommandsForGames(initializedGames:Multitude<InitializedGame>, plugin:Plugin):Array<CommandOnGame> {
         Debugger.log("Creating commands for games: " + initializedGames.map(game -> game.getName()));
+        
+        final pluginNameCapitalsLower = plugin.getNameCapitals().toLowerCase();
 
         return [
             new JoinGameCommand(
@@ -20,12 +22,17 @@ class GameCommandsFactory {
             ),
             new SetGamePropertyCommand(
                 plugin.getSharedPluginMemory(),
-                plugin.getNameCapitals().toLowerCase(),
+                pluginNameCapitalsLower,
                 initializedGames
             ),
             new SetNewGamePropertyCommand(
                 plugin.getSharedPluginMemory(),
-                plugin.getNameCapitals().toLowerCase(),
+                pluginNameCapitalsLower,
+                initializedGames
+            ),
+            new AddToGamePropertyCommand(
+                plugin.getSharedPluginMemory(),
+                pluginNameCapitalsLower,
                 initializedGames
             ),
         ];
