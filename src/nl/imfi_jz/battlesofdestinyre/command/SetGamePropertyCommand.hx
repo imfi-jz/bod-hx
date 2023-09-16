@@ -49,7 +49,7 @@ class SetGamePropertyCommand extends CommandOnGame {
 
     private function usagesReported(parsedArguments:StandardCollection<String>, ?executor:MessageReceiver):Bool {
         final usageArguments = '"<game name>.<state key>" "<value>"';
-        final usage = 'Usage: /hxp $pluginNameCapitalLower set $usageArguments';
+        final usage = 'Usage: /hxp $pluginNameCapitalLower ' + getName() + ' $usageArguments';
         if(!currectNumberOfArguments(parsedArguments)){
             executor?.tell('Invalid number of arguments. $usage');
             return true;
@@ -69,7 +69,7 @@ class SetGamePropertyCommand extends CommandOnGame {
                 return true;
             }
             else if(!isValidStateKey(getStateKeyArgument(parsedArguments), gameName)) {
-                executor?.tell('Invalid state key. To set custom state keys, use: /hxp $pluginNameCapitalLower setcustom $usageArguments');
+                executor?.tell('Invalid state key. To set custom state keys, use: /hxp $pluginNameCapitalLower ' + SetNewGamePropertyCommand.NAME + ' $usageArguments');
                 return true;
             }
             else return false;

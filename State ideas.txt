@@ -10,13 +10,18 @@ Player participation rules:
     Lives removed upon leave
 
 Stage data/options:
+    Duration in seconds (to allow restarting/preset)
     Seconds remaining
     Next stage
     Objective
     Commands to execute upon stage start (string array)
         Game name in set command should be optional (at first only when run from file)
+        Commands should be able to contain value getters within <> (a key within the game state)
 
 Stage names should have no effect on any behavior.
+
+Initial stage (to allow restarting/preset).
+When creating a new game by command, a separate event should be fired (to reset stage and seconds remaining). A third argument can pick an existing game to use as preset.
 
 Elimination game mode stages:
     Team selection

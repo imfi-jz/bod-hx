@@ -23,6 +23,11 @@ class GameCommandsFactory {
                 plugin.getNameCapitals().toLowerCase(),
                 initializedGames
             ),
+            new SetNewGamePropertyCommand(
+                plugin.getSharedPluginMemory(),
+                plugin.getNameCapitals().toLowerCase(),
+                initializedGames
+            ),
         ];
     }
 }
