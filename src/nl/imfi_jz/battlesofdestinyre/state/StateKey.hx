@@ -28,6 +28,7 @@ abstract StateKey(Array<String>) from Array<String> to Array<String> {
     private static inline final ALLOW_PVP = 'Allow PVP';
     private static inline final COMMANDS = 'Commands';
     private static inline final COMMANDS_AT_SECONDS_REMAINING = 'Commands at seconds remaining';
+    private static inline final TEMP_PLAYER_STATE = 'Use temporary player states';
 
     public inline function toString(delimiter:String):String {
         return this.join(delimiter);
@@ -67,5 +68,8 @@ abstract StateKey(Array<String>) from Array<String> to Array<String> {
     }
     public static inline function stageCommandsAtSecondsRemaining(stageName:String, secondsRemaining:Float):StateKey {
         return [STAGES, stageName, COMMANDS_AT_SECONDS_REMAINING, Std.string(Math.floor(secondsRemaining))];
+    }
+    public static inline function stageTempPlayerState(stageName:String):StateKey {
+        return [STAGES, stageName, TEMP_PLAYER_STATE];
     }
 }

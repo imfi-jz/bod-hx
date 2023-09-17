@@ -10,6 +10,8 @@ class StageChangeEvent extends StringChangeEvent {
 
 	function handle(previousValue:Null<String>, newValue:Null<String>) {
         if(newValue != null){
+            handlePlayerStateStorage(newValue);
+            
             final game = getInitializedGame();
             final clock = new Clock(
                 game,
@@ -30,5 +32,23 @@ class StageChangeEvent extends StringChangeEvent {
         getInitializedGame().getCommandExecutor().executeUnparsedCommands(
             getInitializedGame().getMemoryGameState().getStringArray(StateKey.stageCommands(stageName))
         );
+    }
+
+    private function handlePlayerStateStorage(stageName:String) {
+        final game = getInitializedGame();
+        final storePlayerStates = game.getMemoryGameState().getBool(StateKey.stageTempPlayerState(stageName));
+
+        if(storePlayerStates != null){
+            if(storePlayerStates){
+                game.getOnlinePlayers().each(player -> {
+                    if(!game.getPlayerStateStorage().containsPlayerState(player)){
+                        game.getPlayerStateStorage().storePlayerState(player);
+                    }
+                });
+            }
+            else {
+                // TODO: Restore player states
+            }
+        }
     }
 }

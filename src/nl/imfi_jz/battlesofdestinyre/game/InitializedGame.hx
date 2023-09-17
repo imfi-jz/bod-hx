@@ -1,5 +1,6 @@
 package nl.imfi_jz.battlesofdestinyre.game;
 
+import nl.imfi_jz.battlesofdestinyre.state.player.PlayerStateStorage;
 import nl.imfi_jz.minecraft_api.Gate.Plugin;
 import nl.imfi_jz.battlesofdestinyre.state.StateKey;
 import nl.imfi_jz.minecraft_api.World;
@@ -16,6 +17,7 @@ class InitializedGame {
     private final gameStateChangeListener:GameStateChangeListener;
     private final plugin:Plugin;
     private final commandExecutor:CommandExecutor;
+    private final playerStateStorage:PlayerStateStorage;
     
     public function new(gameName, fileGameState, memoryGameState, gameStateChangeListener, plugin) {
         this.gameName = gameName;
@@ -24,6 +26,7 @@ class InitializedGame {
         this.gameStateChangeListener = gameStateChangeListener;
         this.plugin = plugin;
         this.commandExecutor = new CommandExecutor(plugin.getGame());
+        this.playerStateStorage = new PlayerStateStorage(plugin.getFileSystemManager().getYmlFile('player-states'));
     }
 
     public function getName():String {
@@ -56,6 +59,10 @@ class InitializedGame {
 
     public inline function getCommandTagPrefix():String {
         return "bod-";
+    }
+
+    public function getPlayerStateStorage():PlayerStateStorage {
+        return playerStateStorage;
     }
 
     public function getTeams():Multitude<Team> {
