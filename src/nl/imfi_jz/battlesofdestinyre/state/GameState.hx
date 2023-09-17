@@ -12,6 +12,6 @@ interface GameState {
     function getBool(key:StateKey):Null<Bool>;
     function setBool(key:StateKey, value:Null<Bool>):Void;
 
-    function getStringArray(key:StateKey):Array<String>;
-    function setStringArray(key:StateKey, value:Array<String>):Void;
+    function getStringArray(key:StateKey):Null<Array<String>>;
+    function setStringArray(key:StateKey, value:Null<Array<String>>):Void;
 }

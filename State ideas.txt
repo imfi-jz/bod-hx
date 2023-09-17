@@ -16,7 +16,7 @@ Stage data/options:
     Objective
     Commands to execute upon stage start (string array)
     Commands to execute at seconds remaining -> seconds -> string array
-        Game name in set command should be optional (at first only when run from file)
+        The current game name should be a variable that can be used within commands (something like <game>)
         Commands should be able to contain value getters within <> (a key within the game state)
 
 Stage names should have no effect on any behavior.

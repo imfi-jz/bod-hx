@@ -15,6 +15,7 @@ class InitializedGame {
     private final memoryGameState:SharedMemoryGameState;
     private final gameStateChangeListener:GameStateChangeListener;
     private final plugin:Plugin;
+    private final commandExecutor:CommandExecutor;
     
     public function new(gameName, fileGameState, memoryGameState, gameStateChangeListener, plugin) {
         this.gameName = gameName;
@@ -22,6 +23,7 @@ class InitializedGame {
         this.memoryGameState = memoryGameState;
         this.gameStateChangeListener = gameStateChangeListener;
         this.plugin = plugin;
+        this.commandExecutor = new CommandExecutor(plugin.getGame());
     }
 
     public function getName():String {
@@ -42,6 +44,10 @@ class InitializedGame {
 
     public function getPlugin():Plugin {
         return plugin;
+    }
+
+    public function getCommandExecutor():CommandExecutor {
+        return commandExecutor;
     }
 
     public function getCommandTag():String {
