@@ -35,19 +35,24 @@ class StageChangeEvent extends StringChangeEvent {
     }
 
     private function handlePlayerStateStorage(stageName:String) {
-        final game = getInitializedGame();
-        final storePlayerStates = game.getMemoryGameState().getBool(StateKey.stageTempPlayerState(stageName));
+        final initializedGame = getInitializedGame();
+        final storePlayerStates = initializedGame.getMemoryGameState().getBool(StateKey.stageTempPlayerState(stageName));
 
         if(storePlayerStates != null){
+            final game = initializedGame.getPlugin().getGame();
             if(storePlayerStates){
-                game.getOnlinePlayers().each(player -> {
-                    if(!game.getPlayerStateStorage().containsPlayerState(player)){
-                        game.getPlayerStateStorage().storePlayerState(player);
+                initializedGame.getOnlinePlayers().each(player -> {
+                    if(!initializedGame.getPlayerStateStorage().containsPlayerState(player)){
+                        initializedGame.getPlayerStateStorage().storePlayerState(player, game);
                     }
                 });
             }
             else {
-                // TODO: Restore player states
+                initializedGame.getOnlinePlayers().each(player -> {
+                    if(initializedGame.getPlayerStateStorage().containsPlayerState(player)){
+                        initializedGame.getPlayerStateStorage().restorePlayerState(player, game);
+                    }
+                });
             }
         }
     }

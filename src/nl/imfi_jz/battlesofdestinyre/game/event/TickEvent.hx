@@ -44,22 +44,26 @@ class TickEvent extends FloatChangeEvent {
     }
 
     private function switchToNextStage() {
-        final nextStage = getInitializedGame().getMemoryGameState().getString(StateKey.stageNextStage(stageName));
+        final initializedGame = getInitializedGame();
+        final nextStage = initializedGame.getMemoryGameState().getString(StateKey.stageNextStage(stageName));
 
         clock.stop();
 
         if(nextStage == null){
             Debugger.log("No next stage found. Game is over");
             /* TODO:
-            - reset players to the state they were in before the game started
             - mark game as finished?
             - unregister events bound to this game?
             - remove game name from players' tags
             - remove players' team via command
             */
+
+            initializedGame.getOnlinePlayers().each(player -> {
+                initializedGame.getPlayerStateStorage().restorePlayerState(player, initializedGame.getPlugin().getGame());
+            });
         }
         else {
-            getInitializedGame().getMemoryGameState().setString(StateKey.STAGE, nextStage);
+            initializedGame.getMemoryGameState().setString(StateKey.STAGE, nextStage);
         }
     }
 }
