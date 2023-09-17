@@ -19,7 +19,7 @@ abstract StateKey(Array<String>) from Array<String> to Array<String> {
     // Stages section
     private static inline final STAGES = 'Stages';
     private static inline final NEXT_STAGE = 'Next stage';
-    private static inline final DURATION = 'Duration';
+    private static inline final DURATION_IN_SECONDS = 'Duration in seconds';
     private static inline final SECONDS_REMAINING = 'Seconds remaining';
     private static inline final MINIMUM_TEAMS = 'Minimum teams';
     private static inline final MAXIMUM_TEAMS = 'Maximum teams';
@@ -44,7 +44,7 @@ abstract StateKey(Array<String>) from Array<String> to Array<String> {
         return [STAGES, stageName, SECONDS_REMAINING];
     }
     public static inline function stageDuration(stageName:String):StateKey {
-        return [STAGES, stageName, DURATION];
+        return [STAGES, stageName, DURATION_IN_SECONDS];
     }
     // TODO: implement team rules
     public static inline function stageMinimumTeams(stageName:String):StateKey {
@@ -66,6 +66,6 @@ abstract StateKey(Array<String>) from Array<String> to Array<String> {
         return [STAGES, stageName, COMMANDS];
     }
     public static inline function stageCommandsAtSecondsRemaining(stageName:String, secondsRemaining:Float):StateKey {
-        return [STAGES, stageName, Std.string(Math.floor(secondsRemaining)), COMMANDS_AT_SECONDS_REMAINING];
+        return [STAGES, stageName, COMMANDS_AT_SECONDS_REMAINING, Std.string(Math.floor(secondsRemaining))];
     }
 }

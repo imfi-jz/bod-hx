@@ -1,5 +1,6 @@
 package nl.imfi_jz.battlesofdestinyre.game.event;
 
+import nl.imfi_jz.functional.collection.Collection.Multitude;
 import nl.imfi_jz.minecraft_api.implementation.Debugger;
 import nl.imfi_jz.battlesofdestinyre.state.StateKey;
 import nl.imfi_jz.battlesofdestinyre.game.event.base.FloatChangeEvent;
@@ -19,12 +20,27 @@ class TickEvent extends FloatChangeEvent {
         Debugger.log("Ticking");
 
         if(currentSecondsRemaining == null || currentSecondsRemaining > 0){
-            clock.scheduleNextTick(currentSecondsRemaining);
+            final secondsPerTick = getInitializedGame().getMemoryGameState().getFloat(StateKey.SECONDS_PER_TICK);
+            if(secondsPerTick != null){
+                clock.scheduleNextTick(currentSecondsRemaining, secondsPerTick);
+
+                executeCommandsAtSecondsRemaining(currentSecondsRemaining, secondsPerTick);
+            }
         }
         else if(currentSecondsRemaining != null && currentSecondsRemaining <= 0){
             Debugger.log("Stage time is up. Should switch stage");
             switchToNextStage();
         }
+    }
+
+    private function executeCommandsAtSecondsRemaining(currentSecondsRemaining:Float, secondsPerTick:Float) {
+        final secondsBetweenTick:Multitude<Int> = [for (s in Math.floor(currentSecondsRemaining)...Math.floor(currentSecondsRemaining + secondsPerTick)) s];
+        secondsBetweenTick.each(seconds -> {
+            Debugger.log('Checking for commands to execute at second $seconds');
+            getInitializedGame().getCommandExecutor().executeUnparsedCommands(
+                getInitializedGame().getMemoryGameState().getStringArray(StateKey.stageCommandsAtSecondsRemaining(stageName, seconds))
+            );
+        });
     }
 
     private function switchToNextStage() {

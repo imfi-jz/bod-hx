@@ -23,7 +23,8 @@ class Clock {
             new TickEvent(game, this, stageName);
 
             final currentSecondsRemaining = game.getMemoryGameState().getFloat(StateKey.stageSecondsRemaining(stageName));
-            scheduleNextTick(currentSecondsRemaining);
+            final secondsPerTick = game.getMemoryGameState().getFloat(StateKey.SECONDS_PER_TICK);
+            scheduleNextTick(currentSecondsRemaining, secondsPerTick);
         }
     }
 
@@ -33,20 +34,18 @@ class Clock {
         new UnhandledTickEvent(game, stageName);
     }
 
-    public function scheduleNextTick(currentSecondsRemaining:Null<Float>) {
-        final secondsBetweenTicks = game.getMemoryGameState().getFloat(StateKey.SECONDS_PER_TICK);
-
-        if(secondsBetweenTicks == null || secondsBetweenTicks <= 0){
-            Debugger.warn(Std.string(StateKey.SECONDS_PER_TICK) + ' is $secondsBetweenTicks, can\'t schedule next tick');
+    public function scheduleNextTick(currentSecondsRemaining:Null<Float>, secondsPerTick:Null<Float>) {
+        if(secondsPerTick == null || secondsPerTick <= 0){
+            Debugger.warn(Std.string(StateKey.SECONDS_PER_TICK) + ' is $secondsPerTick, can\'t schedule next tick');
         }
         else game.getPlugin().getScheduler().executeAfterSeconds(
-            secondsBetweenTicks,
+            secondsPerTick,
             () -> {
                 game.getMemoryGameState().setFloat(
                     StateKey.stageSecondsRemaining(stageName),
                     currentSecondsRemaining == null
                         ? null
-                        : currentSecondsRemaining - secondsBetweenTicks
+                        : currentSecondsRemaining - secondsPerTick
                 );
             }
         );
