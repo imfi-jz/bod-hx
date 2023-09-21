@@ -59,7 +59,17 @@ class PlayerStateStorage {
     private function storeExperience(uid:String, player:Player, game:Game) {
         // Store experience
         file.setValueByNestedKey([uid].concat(KEY.EXPERIENCE_LEVEL), Math.floor(player.getExperienceLevel()));
-        final experiencePoints = game.executeCommand('experience', ['query', player.getName(), 'points']);
+
+        final experiencePointsResults:Multitude<String> = game.executeCommand('experience', ['query', player.getName(), 'points'], 0.1);
+        final experiencePoints = experiencePointsResults.reduce(0.0, (result, line) -> {
+            final startLineContent = player.getName() + ' has ';
+            final endLineContent = ' experience points';
+            if(StringTools.contains(line, startLineContent) && StringTools.endsWith(line, endLineContent)){
+                return Std.parseFloat(line.substring(line.lastIndexOf(startLineContent) + startLineContent.length, line.length - endLineContent.length));
+            }
+            else return result;
+        });
+        Debugger.log('Experience points: $experiencePoints');
         file.setValueByNestedKey([uid].concat(KEY.EXPERIENCE_POINTS), experiencePoints);
 
         // Reset experience
