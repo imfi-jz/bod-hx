@@ -25,7 +25,7 @@ class InitializedGame {
         this.memoryGameState = memoryGameState;
         this.gameStateChangeListener = gameStateChangeListener;
         this.plugin = plugin;
-        this.commandExecutor = new CommandExecutor(plugin.getGame());
+        this.commandExecutor = new CommandExecutor(plugin.getGame(), memoryGameState);
         this.playerStateStorage = new PlayerStateStorage(plugin.getFileSystemManager().getYmlFile('player-states'));
     }
 

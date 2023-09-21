@@ -26,7 +26,7 @@ class AddToGamePropertyCommand extends SetGamePropertyCommand {
             return true;
         }
         else {
-            // TODO: type compatibility checking in set command?
+            // TODO: type compatibility checking in set command? (currently a key with a certain type can be replaced by a value of a different type)
             /* final value = getValueArgument(parsedArguments);
             final sharedMemoryForValuesType = getSharedMemoryForValuesType(value);
             final sharedMemoryKey = SharedMemoryGameState.getAPrefixedSharedMemoryKey(
