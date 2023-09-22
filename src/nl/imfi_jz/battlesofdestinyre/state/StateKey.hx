@@ -44,10 +44,9 @@ abstract StateKey(Array<String>) from Array<String> to Array<String> {
     public static inline function stageSecondsRemaining(stageName:String):StateKey {
         return [STAGES, stageName, SECONDS_REMAINING];
     }
-    public static inline function stageDuration(stageName:String):StateKey {
+    public static inline function stageDurationInSeconds(stageName:String):StateKey {
         return [STAGES, stageName, DURATION_IN_SECONDS];
     }
-    // TODO: implement team rules
     public static inline function stageMinimumTeams(stageName:String):StateKey {
         return [STAGES, stageName, MINIMUM_TEAMS];
     }

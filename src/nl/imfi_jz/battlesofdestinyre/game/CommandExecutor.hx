@@ -1,5 +1,6 @@
 package nl.imfi_jz.battlesofdestinyre.game;
 
+import haxe.exceptions.PosException;
 import nl.imfi_jz.battlesofdestinyre.state.SharedMemoryGameState;
 import nl.imfi_jz.functional.collection.Collection.Multitude;
 import nl.imfi_jz.minecraft_api.implementation.Debugger;
@@ -105,9 +106,6 @@ class CommandExecutor {
             }
             else return command;
         }
-        else {
-            Debugger.warn('Recursion depth exceeded while parsing command: $command');
-            return command;
-        }
+        else throw new PosException('Recursion depth exceeded while parsing command: $command');
     }
 }
