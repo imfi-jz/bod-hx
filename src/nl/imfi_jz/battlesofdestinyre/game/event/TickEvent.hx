@@ -17,17 +17,18 @@ class TickEvent extends FloatChangeEvent {
     }
     
 	private function handle(previousSecondsRemaining:Null<Float>, currentSecondsRemaining:Null<Float>) {
+        // Maybe add a check if the game is paused before proceeding so the game won't execute a tick after the game is paused
         Debugger.log("Ticking");
 
         if(currentSecondsRemaining == null || currentSecondsRemaining > 0){
             final secondsPerTick = getInitializedGame().getMemoryGameState().getFloat(StateKey.SECONDS_PER_TICK);
             if(secondsPerTick != null){
-                clock.scheduleNextTick(currentSecondsRemaining, secondsPerTick);
+                final stageDurationInSeconds = getInitializedGame().getMemoryGameState().getFloat(StateKey.stageDurationInSeconds(stageName));
+                clock.scheduleNextTick(currentSecondsRemaining ?? stageDurationInSeconds, secondsPerTick);
 
                 if(currentSecondsRemaining != null){
                     executeCommandsAtSecondsRemaining(currentSecondsRemaining, secondsPerTick);
 
-                    final stageDurationInSeconds = getInitializedGame().getMemoryGameState().getFloat(StateKey.stageDurationInSeconds(stageName));
                     if(stageDurationInSeconds != null){
                         handleTeamConstraints(currentSecondsRemaining, secondsPerTick, stageDurationInSeconds);
                     }
@@ -41,30 +42,47 @@ class TickEvent extends FloatChangeEvent {
     }
 
     private function handleTeamConstraints(currentSecondsRemaining:Float, secondsPerTick:Float, stageDurationInSeconds:Float) {
-        final minTeams = getInitializedGame().getMemoryGameState().getFloat(StateKey.stageMinimumTeams(stageName));
-        final maxTeams = getInitializedGame().getMemoryGameState().getFloat(StateKey.stageMaximumTeams(stageName));
-        final minPlayersPerTeam = getInitializedGame().getMemoryGameState().getFloat(StateKey.stageMinimumPlayersPerTeam(stageName));
-        final maxPlayersPerTeam = getInitializedGame().getMemoryGameState().getFloat(StateKey.stageMaximumPlayersPerTeam(stageName));
+        final minTeams = getInitializedGame().getMemoryGameState().getFloat(StateKey.stageMinimumTeams(stageName)) ?? 0.;
+        final maxTeams = getInitializedGame().getMemoryGameState().getFloat(StateKey.stageMaximumTeams(stageName)) ?? 99999.;
         final teams = getInitializedGame().getTeams();
 
-        final handleConstraintNotMet = () -> getInitializedGame().getMemoryGameState().setFloat(StateKey.stageSecondsRemaining(stageName), stageDurationInSeconds);
-
-        if(minTeams != null && teams.length < minTeams){
-            handleConstraintNotMet();
-        }
-        else if(maxTeams != null && teams.length > maxTeams){
-            handleConstraintNotMet();
-        }
-        else if(minPlayersPerTeam != null){
-            final leastPlayersInTeam = teams.reduce(null, (leastPlayersInTeam, team) -> Math.min(leastPlayersInTeam, team.getOnlinePlayers().length));
-            if(leastPlayersInTeam < minPlayersPerTeam){
-                handleConstraintNotMet();
+        final handleConstraintsNotMet = () -> {
+            // Flip seconds per tick to prevent the game from progressing
+            if((currentSecondsRemaining < stageDurationInSeconds && secondsPerTick > 0)
+                || (currentSecondsRemaining >= stageDurationInSeconds && secondsPerTick < 0)){
+                getInitializedGame().getMemoryGameState().setFloat(StateKey.SECONDS_PER_TICK, -secondsPerTick);
             }
         }
-        else if(maxPlayersPerTeam != null){
-            final mostPlayersInTeam = teams.reduce(null, (mostPlayersInTeam, team) -> Math.max(mostPlayersInTeam, team.getOnlinePlayers().length));
-            if(mostPlayersInTeam > maxPlayersPerTeam){
-                handleConstraintNotMet();
+
+        if(teams.length < minTeams){
+            Debugger.log('Not enough teams');
+            handleConstraintsNotMet();
+        }
+        else if(teams.length > maxTeams){
+            Debugger.log('Too many teams');
+            handleConstraintsNotMet();
+        }
+        else {
+            final minPlayersPerTeam = getInitializedGame().getMemoryGameState().getFloat(StateKey.stageMinimumPlayersPerTeam(stageName)) ?? 0.;
+            final maxPlayersPerTeam = getInitializedGame().getMemoryGameState().getFloat(StateKey.stageMaximumPlayersPerTeam(stageName)) ?? 99999.;
+
+            final leastPlayersInTeam = teams.reduce(99999., (leastPlayersInTeam, team) -> Math.min(leastPlayersInTeam, team.getOnlinePlayers().length));
+            final mostPlayersInTeam = teams.reduce(0., (mostPlayersInTeam, team) -> Math.max(mostPlayersInTeam, team.getOnlinePlayers().length));
+
+            if(leastPlayersInTeam < minPlayersPerTeam){
+                Debugger.log('Not enough players in a team');
+                handleConstraintsNotMet();
+            }
+            else if(mostPlayersInTeam > maxPlayersPerTeam){
+                Debugger.log('Too many players in a team');
+                handleConstraintsNotMet();
+            }
+            else {
+                // Conditions met
+                Debugger.log('Team conditions met');
+                if(secondsPerTick < 0){
+                    getInitializedGame().getMemoryGameState().setFloat(StateKey.SECONDS_PER_TICK, -secondsPerTick);
+                }
             }
         }
     }

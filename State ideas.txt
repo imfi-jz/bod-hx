@@ -9,6 +9,11 @@ Player participation rules:
     Seconds to pause for player going offline
     Lives removed upon leave
 
+Player start location rules:
+    Minimum distance between start locations
+    Teleport players to their start locations when stage ends where they are allowed to set it
+    Choose a valid location for players that didn't set their start location
+
 Stage data/options:
     Duration in seconds (to allow restarting/preset)
     Seconds remaining

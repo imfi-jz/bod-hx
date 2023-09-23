@@ -8,6 +8,8 @@ abstract StateKey(Array<String>) from Array<String> to Array<String> {
     public static final CENTER_Y:StateKey = [CENTER, 'Y'];
     public static final CENTER_Z:StateKey = [CENTER, 'Z'];
     public static final CENTER_WORLD:StateKey = [CENTER, 'World'];
+    // TODO: Force players in no game to join
+    //  Maybe auto unpause when first player joins (and game is not over)
 
     // Center section
     private static inline final CENTER = 'Center';

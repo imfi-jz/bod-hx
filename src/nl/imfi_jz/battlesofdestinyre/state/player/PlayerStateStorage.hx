@@ -22,7 +22,8 @@ class PlayerStateStorage {
         LOCATION_WORLD: [LOCATION_SECTION_KEY, 'world'],
         HEALTH: 'health',
         EXPERIENCE_LEVEL: [EXPERIENCE_SECTION_KEY, 'level'],
-        EXPERIENCE_POINTS: [EXPERIENCE_SECTION_KEY, 'points']
+        EXPERIENCE_POINTS: [EXPERIENCE_SECTION_KEY, 'points'],
+        // TODO: Add potion effects and game mode
     };
 
     private final file:NestableKeyValueFile<Any>;

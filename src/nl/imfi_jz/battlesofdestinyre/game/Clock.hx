@@ -35,16 +35,16 @@ class Clock {
     }
 
     public function scheduleNextTick(currentSecondsRemaining:Null<Float>, secondsPerTick:Null<Float>) {
-        if(secondsPerTick == null || secondsPerTick <= 0){
+        if(secondsPerTick == null || secondsPerTick == 0){
             Debugger.warn(Std.string(StateKey.SECONDS_PER_TICK) + ' is $secondsPerTick, can\'t schedule next tick');
         }
         else game.getPlugin().getScheduler().executeAfterSeconds(
-            secondsPerTick,
+            secondsPerTick < 0 ? -secondsPerTick : secondsPerTick,
             () -> {
                 game.getMemoryGameState().setFloat(
                     StateKey.stageSecondsRemaining(stageName),
                     currentSecondsRemaining == null
-                        ? null
+                        ? game.getMemoryGameState().getFloat(StateKey.stageDurationInSeconds(stageName))
                         : currentSecondsRemaining - secondsPerTick
                 );
             }
