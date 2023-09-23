@@ -35,7 +35,7 @@ class CommandExecutor {
             Debugger.warn('Not executing empty command');
         }
         else {
-            Debugger.log('Executing command: $command');
+            Debugger.log('Parsing command: $command');
 
             final parsedCommand = parseCommand(command);
 
@@ -47,12 +47,8 @@ class CommandExecutor {
     }
 
     private function parseCommand(command:String):String {
-        return parseStrings(
-            parseFloats(
-                parseBooleans(
-                    parseGameName(command)
-                )
-            )
+        return parseApplicableTypes(
+            parseGameName(command)
         );
     }
 
@@ -61,29 +57,38 @@ class CommandExecutor {
         return StringTools.replace(command, PARSED_ARGUMENT_PREFIX + GAME_NAME_ARGUMENT + PARSED_ARGUMENT_SUFFIX, sharedMemoryGameState.getName());
     }
 
-    private function parseBooleans(command:String):String {
-        Debugger.log('Parsing booleans for command: $command');
-        return parseValue(command, 'b:', sharedMemoryGameState.getBool);
-    }
-
-    private function parseStrings(command:String):String {
-        Debugger.log('Parsing strings for command: $command');
-        return parseValue(command, 's:', sharedMemoryGameState.getString);
-    }
-
-    private function parseFloats(command:String):String {
-        Debugger.log('Parsing floats for command: $command');
-        return parseValue(command, 'f:', sharedMemoryGameState.getFloat, (value)->{
-            if(Math.floor(value) == value) {
-                return Std.string(Math.floor(value));
+    private function parseApplicableTypes(command:String):String {
+        return parseValue(command, (key) -> {
+            final bool = sharedMemoryGameState.getBool(key);
+            if(bool != null){
+                return Std.string(bool);
             }
-            else return Std.string(value);
+            else {
+                final number = sharedMemoryGameState.getFloat(key);
+                if(number != null){
+                    if(Math.floor(number) == number) {
+                        return Std.string(Math.floor(number));
+                    }
+                    else return Std.string(number);
+                }
+                else {
+                    final string = sharedMemoryGameState.getString(key);
+                    if(string != null){
+                        return string;
+                    }
+                    else {
+                        final keyAsString = PARSED_ARGUMENT_PREFIX + key.join(KEY_SEPARATOR) + PARSED_ARGUMENT_SUFFIX;
+                        Debugger.warn('No value found for key $keyAsString in command "$command"');
+                        return '';
+                    }
+                }
+            }
         });
     }
 
-    private function parseValue<T>(command:String, typeIdentifier:String, getValue:(key:Array<String>)->T, ?valueToString:(value:T)->String, recursionDepth = 100):String {
+    private function parseValue<T>(command:String, getValueAsString:(key:Array<String>)->String, recursionDepth = 100):String {
         if(recursionDepth > 0) {
-            final prefix = PARSED_ARGUMENT_PREFIX + typeIdentifier;
+            final prefix = PARSED_ARGUMENT_PREFIX;
 
             final startIndex = command.indexOf(prefix);
             if(startIndex >= 0) {
@@ -91,16 +96,14 @@ class CommandExecutor {
                 final endIndex = startIndex + commandCutStart.indexOf(PARSED_ARGUMENT_SUFFIX) + PARSED_ARGUMENT_SUFFIX.length;
 
                 final key = command.substring(startIndex + prefix.length, endIndex - PARSED_ARGUMENT_SUFFIX.length);
-                final valueAsString = valueToString == null
-                    ? Std.string(getValue(key.split(KEY_SEPARATOR)))
-                    : valueToString(getValue(key.split(KEY_SEPARATOR)));
+                final valueAsString = getValueAsString(key.split(KEY_SEPARATOR));
             
-                final parsedCommand = command.substring(0, startIndex) + valueAsString + command.substring(endIndex + 1);
+                final parsedCommand = command.substring(0, startIndex) + valueAsString + command.substring(endIndex);
             
-                Debugger.log('Command: $command was parsed to: $parsedCommand');
+                Debugger.log('Command "$command" was parsed to "$parsedCommand"');
 
                 if(parsedCommand.indexOf(prefix) >= 0) {
-                    return parseValue(parsedCommand, prefix, getValue, valueToString, recursionDepth - 1);
+                    return parseValue(parsedCommand, getValueAsString, recursionDepth - 1);
                 }
                 else return parsedCommand;
             }
